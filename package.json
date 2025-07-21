@@ -3,21 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.10.0",
+    "@next/bundle-analyzer": "^15.4.2",
+    "@sanity/client": "^7.8.0",
+    "@sanity/image-url": "^1.1.0",
+    "@sendgrid/mail": "^8.1.5",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "mongodb": "^6.17.0",
+    "next": "15.4.2",
+    "next-auth": "^4.24.11",
+    "next-sanity": "^9.12.3",
+    "postcss": "^8.5.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.2"
+    "tailwindcss": "^3.4.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
+    "@eslint/eslintrc": "^3",
     "eslint": "^9",
-    "eslint-config-next": "15.4.2",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-next": "15.4.2"
   }
 }
