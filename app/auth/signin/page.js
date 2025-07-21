@@ -41,17 +41,9 @@ export default function SignInPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <Link href="/" className="flex items-center justify-center space-x-3 mb-8">
-            <div className="w-12 h-12 bg-gold rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">G</span>
-            </div>
-            <span className="font-playfair text-2xl font-bold text-deepBlue">
-              Gilt Counselling
-            </span>
-          </Link>
           
           <h2 className="font-playfair text-3xl font-bold text-deepBlue mb-2">
-            Welcome Back
+            Welcome
           </h2>
           <p className="text-gray-600">
             Sign in to your account using your email address
@@ -81,7 +73,7 @@ export default function SignInPage() {
               disabled={isLoading}
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Sending Magic Link...' : 'Send Magic Link'}
+              {isLoading ? 'Sending Magic Link...' : 'Click to proceed'}
             </button>
 
             {message && (
