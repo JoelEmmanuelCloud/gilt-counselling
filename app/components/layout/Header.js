@@ -24,11 +24,11 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/logo.png"
+              src="/images/logo.svg"
               alt="Gilt Counselling Logo"
-              width={300}
-              height={160}
-              className="h-32 w-auto object-contain"
+              width={200}
+              height={80}
+              className="h-16 w-auto object-contain"
             />
           </Link>
 

@@ -1,5 +1,6 @@
 // components/layout/Footer.js
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -8,13 +9,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
           {/* Brand Section */}
           <div className="md:col-span-2">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xl">G</span>
-              </div>
-              <span className="font-playfair text-xl md:text-2xl font-bold">
-                Gilt Counselling
-              </span>
+            <div className="flex items-center mb-4">
+              <Image 
+                src="/images/logo-white.svg" 
+                alt="Gilt Counselling Logo"
+                width={200}
+                height={80}
+                className="h-16 w-auto object-contain"
+              />
             </div>
             <p className="text-gray-300 mb-4 text-sm md:text-base max-w-md leading-relaxed">
               Professional counselling services for teens, youth, and families. 
