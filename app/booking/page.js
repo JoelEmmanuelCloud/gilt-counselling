@@ -13,6 +13,12 @@ export default function BookingPage() {
   const [bookingStep, setBookingStep] = useState('select') // 'select', 'calendar', 'confirmation'
   const [bookingData, setBookingData] = useState({})
 
+  // Debug logging
+  useEffect(() => {
+    console.log('Booking page - Session status:', status)
+    console.log('Booking page - Session data:', session)
+  }, [session, status])
+
   const services = [
     {
       id: 'teen-individual',
@@ -101,7 +107,8 @@ export default function BookingPage() {
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto mb-4"></div>
-          <p className="text-deepBlue">Loading...</p>
+          <p className="text-deepBlue">Loading session...</p>
+          <p className="text-sm text-gray-500 mt-2">Status: {status}</p>
         </div>
       </div>
     )
@@ -109,6 +116,16 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-cream">
+      {/* Debug info - remove this in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
+          <p className="font-bold">Debug Info:</p>
+          <p>Session Status: {status}</p>
+          <p>Has Session: {session ? 'Yes' : 'No'}</p>
+          <p>User Email: {session?.user?.email || 'None'}</p>
+        </div>
+      )}
+
       {/* Header */}
       <section className="bg-white shadow-sm">
         <div className="container-max section-padding py-8">
@@ -121,7 +138,7 @@ export default function BookingPage() {
               best for you and your family.
             </p>
             
-            {/* Progress Indicator */}
+            {/* Progress Indicator - Only show when authenticated */}
             {session && (
               <div className="flex justify-center mt-6">
                 <div className="flex items-center space-x-4">

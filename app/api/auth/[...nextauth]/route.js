@@ -1,4 +1,3 @@
-//app/api/auth/[...nextauth]/route.js
 import NextAuth from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
@@ -42,11 +41,14 @@ const authOptions = {
   ],
   session: {
     strategy: 'database',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async session({ session, user }) {
-      session.user.id = user.id
-      session.user.role = user.role || 'user'
+      if (session?.user) {
+        session.user.id = user.id
+        session.user.role = user.role || 'user'
+      }
       return session
     },
     async signIn({ user, account, profile, email, credentials }) {
@@ -60,11 +62,29 @@ const authOptions = {
       }
       return true
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+    },
   },
   pages: {
     signIn: '/auth/signin',
     verifyRequest: '/auth/verify',
+    error: '/auth/error', // Add custom error page
   },
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('User signed in:', user.email)
+    },
+    async session({ session, token }) {
+      // Session is active
+      console.log('Session active for:', session.user?.email)
+    }
+  },
+  debug: process.env.NODE_ENV === 'development',
 }
 
 const handler = NextAuth(authOptions)
