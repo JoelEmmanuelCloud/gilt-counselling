@@ -1,4 +1,4 @@
-//app/services/page.js
+// src/app/services/page.js
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -14,8 +14,6 @@ export default function ServicesPage() {
       title: 'Individual Teen Counselling',
       description: 'One-on-one sessions tailored to address the unique challenges faced by teenagers.',
       image: '/images/teen-counselling.jpg',
-      duration: '50 minutes',
-      price: '$120',
       features: [
         'Identity development and self-esteem building',
         'Anxiety and depression management',
@@ -31,8 +29,6 @@ export default function ServicesPage() {
       title: 'Family Therapy Sessions',
       description: 'Collaborative sessions to strengthen family bonds and improve communication.',
       image: '/images/family-therapy.jpg',
-      duration: '75 minutes',
-      price: '$150',
       features: [
         'Improved family communication patterns',
         'Conflict resolution and mediation',
@@ -48,8 +44,6 @@ export default function ServicesPage() {
       title: 'Parent Coaching & Support',
       description: 'Guidance and support for parents navigating the complexities of raising teenagers.',
       image: '/images/parent-coaching.jpg',
-      duration: '60 minutes',
-      price: '$100',
       features: [
         'Understanding adolescent development',
         'Effective communication strategies',
@@ -65,8 +59,6 @@ export default function ServicesPage() {
       title: 'Teen Group Therapy',
       description: 'Peer support groups for teenagers facing similar challenges.',
       image: '/images/group-session.jpg',
-      duration: '90 minutes',
-      price: '$60',
       features: [
         'Peer support and connection',
         'Social skills development',
@@ -125,13 +117,10 @@ export default function ServicesPage() {
               <div key={service.id} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
                 {/* Content */}
                 <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                  <div className="flex items-center space-x-4 mb-4">
+                  <div className="mb-4">
                     <h2 className="font-playfair text-3xl font-bold text-deepBlue">
                       {service.title}
                     </h2>
-                    <div className="bg-gold text-white px-3 py-1 rounded-full text-sm font-semibold">
-                      {service.price}
-                    </div>
                   </div>
                   
                   <p className="text-lg text-gray-600 mb-6">
@@ -156,7 +145,6 @@ export default function ServicesPage() {
                   </div>
 
                   <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
-                    <span>⏱️ {service.duration}</span>
                     <span>📅 Flexible Scheduling</span>
                     <span>💻 In-Person & Virtual</span>
                   </div>

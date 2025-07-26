@@ -2,7 +2,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 
@@ -50,8 +49,8 @@ export default function BookingConfirmation({ bookingData }) {
       title: `Counselling Session - ${bookingData.service}`,
       start: startDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
       end: endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
-      description: `Counselling session with Dr. Ugwu at Gilt Counselling.\\n\\nService: ${bookingData.service}\\nLocation: 123 Wellness Drive, Suite 200`,
-      location: '123 Wellness Drive, Suite 200, Your City, ST 12345'
+      description: `Counselling Session at Gilt Counselling.\\n\\nService: ${bookingData.service}\\nLocation: No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria`,
+      location: 'No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria'
     }
 
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.title)}&dates=${eventDetails.start}/${eventDetails.end}&details=${encodeURIComponent(eventDetails.description)}&location=${encodeURIComponent(eventDetails.location)}`
@@ -143,8 +142,8 @@ export default function BookingConfirmation({ bookingData }) {
                 <div>
                   <p className="font-medium text-deepBlue">Location</p>
                   <p className="text-gray-600">
-                    123 Wellness Drive, Suite 200<br />
-                    Your City, ST 12345
+                    No 88 Woji Road, GRA Phase 2<br />
+                     Port Harcourt, Rivers State, Nigeria
                   </p>
                 </div>
               </div>
@@ -282,7 +281,7 @@ export default function BookingConfirmation({ bookingData }) {
                 <div>
                   <p className="font-medium text-deepBlue">Your Session</p>
                   <p className="text-sm text-gray-600">
-                    Attend your scheduled appointment with Dr. Ugwu and begin your journey toward wellness.
+                    Attend your scheduled session with one of our qualified counsellors, led by Dr. Ugwu, and take the next step toward healing and personal growth.
                   </p>
                 </div>
               </div>
