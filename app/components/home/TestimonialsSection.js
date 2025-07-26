@@ -2,17 +2,20 @@
 export default function TestimonialsSection() {
   const testimonials = [
     {
-      name: "Sarah M.",
-      role: "Parent",
-      content: "Dr. Ugwu helped our family through a difficult period with our teenager. Her approach was compassionate yet effective, and we saw positive changes within weeks.",
-      rating: 5
+    name: "Sarah M.",
+    role: "Parent",
+    content:
+      "Gilt Counselling supported our family during a challenging time with our teenager. The sessions were compassionate, structured, and made a real difference. We started seeing positive changes within weeks.",
+    rating: 5
     },
     {
       name: "Michael T.",
       role: "Teen Client",
-      content: "I was really struggling with anxiety and social issues. Dr. Ugwu created a safe space where I could be honest about my feelings. I'm much more confident now.",
+      content:
+        "I was struggling with anxiety and didn’t know how to talk about it. Gilt Counselling gave me a safe space to be myself. I feel more confident and in control now.",
       rating: 5
-    },
+    }
+    ,
     {
       name: "Jennifer K.",
       role: "Parent",

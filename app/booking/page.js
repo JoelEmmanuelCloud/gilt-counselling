@@ -134,8 +134,8 @@ export default function BookingPage() {
               Book Your Session
             </h1>
             <p className="text-lg text-gray-600">
-              Schedule your counselling session with Dr. Ugwu. Choose a time that works 
-              best for you and your family.
+              Schedule your counselling session with Gilt Counselling.
+              Choose a time that works best for you or your family, and begin your journey with our lead counsellor, Dr. Ugwu.
             </p>
             
             {/* Progress Indicator - Only show when authenticated */}

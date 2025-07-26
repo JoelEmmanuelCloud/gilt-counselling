@@ -44,7 +44,7 @@ export default function Footer() {
             <h3 className="font-playfair text-base md:text-lg font-semibold mb-3 md:mb-4">Quick Links</h3>
             <ul className="space-y-2">
               {[
-                { name: 'About Dr. Ugwu', href: '/about' },
+                { name: 'About Gilt Counselling', href: '/about' },
                 { name: 'Services', href: '/services' },
                 { name: 'Blog', href: '/blog' },
                 { name: 'Contact', href: '/contact' },

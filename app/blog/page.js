@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/utils'
 
 export const metadata = {
   title: 'Blog - Gilt Counselling',
-  description: 'Expert insights on teen mental health, parenting, family therapy, and adolescent development from Dr. Ugwu.',
+  description: 'Expert insights on teen mental health, parenting, family therapy, and adolescent development from the Gilt Counselling Team.',
 }
 
 export default function BlogPage() {
@@ -94,7 +94,7 @@ export default function BlogPage() {
             </h1>
             <p className="text-xl text-gray-600 mb-8">
               Expert insights on teen mental health, family dynamics, and parenting strategies 
-              from Dr. Ugwu and the counselling community.
+              from Gilt Counselling community.
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {categories.map((category) => (

@@ -30,7 +30,8 @@ export default async function DashboardPage() {
             Admin Dashboard
           </h1>
           <p className="text-gray-600 mt-2">
-            Welcome back, Dr. Ugwu. Here's what's happening with your practice.
+            Welcome back, Dr. Ugwu
+            Here’s an overview of your practice activity at Gilt Counselling.
           </p>
         </div>
 

@@ -7,15 +7,15 @@ export default function LocalBusinessSchema() {
     "name": "Gilt Counselling",
     "description": "Professional counselling services for teens, youth, and families",
     "url": "https://giltcounselling.com",
-    "telephone": "+1-123-456-7890",
+    "telephone": "+234 803 309 4050",
     "email": "support@giltcounselling.com",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "123 Wellness Drive, Suite 200",
+      "streetAddress": "88 Woji Road, GRA Phase 2",
       "addressLocality": "Your City",
-      "addressRegion": "ST",
-      "postalCode": "12345",
-      "addressCountry": "US"
+      "addressRegion": "Port Harcourt",
+      "postalCode": "500272",
+      "addressCountry": "Nigeria"
     },
     "geo": {
       "@type": "GeoCoordinates",

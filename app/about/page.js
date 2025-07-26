@@ -3,8 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export const metadata = {
-  title: 'About Dr. Ugwu - Gilt Counselling',
-  description: 'Learn about Dr. Ugwu\'s experience, qualifications, and approach to counselling teens, youth, and families.',
+  title: 'About Gilt Counselling - Led by Dr. Ugwu',
+  description: 'Discover Gilt Counselling’s philosophy, expertise, and the compassionate leadership of Dr. Ugwu in teen and family therapy.',
 }
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="font-playfair text-4xl lg:text-5xl font-bold text-deepBlue mb-6">
-                Meet Dr. Ugwu
+                Meet the Heart Behind Gilt Counselling
               </h1>
               <p className="text-lg text-gray-600 mb-6">
                 A passionate advocate for teen mental health with over 5 years of experience 
@@ -70,6 +70,21 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <section className="section-padding bg-white">
+        <div className="container-max text-center max-w-3xl mx-auto">
+          <h2 className="font-playfair text-3xl font-bold text-deepBlue mb-6">
+            Our Mission at Gilt Counselling
+          </h2>
+          <p className="text-lg text-gray-600 leading-relaxed">
+            At Gilt Counselling, our mission is to foster healing, growth, and resilience 
+            in teens and families through culturally sensitive, evidence-based therapy. 
+            We are dedicated to making quality mental health care accessible and approachable 
+            for every young person who walks through our door.
+          </p>
+        </div>
+      </section>
+
 
       {/* Qualifications & Experience */}
       <section className="bg-cream section-padding">
@@ -191,13 +206,13 @@ export default function AboutPage() {
         <div className="container-max">
           <div className="max-w-4xl mx-auto">
             <h2 className="font-playfair text-3xl font-bold text-deepBlue mb-8 text-center">
-              A Personal Note from Dr. Ugwu
+              Why Gilt Counselling Exists
             </h2>
             
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <div className="prose prose-lg max-w-none text-gray-600">
                 <p className="text-lg leading-relaxed mb-6">
-                  "My journey into counselling began with a deep desire to make a meaningful difference 
+                  "Gilt Counselling was born from a deep desire to make a meaningful difference. 
                   in the lives of young people and their families. Having witnessed firsthand the 
                   transformative power of compassionate, evidence-based therapy, I am committed to 
                   providing a sanctuary where healing can flourish."

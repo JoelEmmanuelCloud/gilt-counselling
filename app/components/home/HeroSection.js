@@ -15,9 +15,8 @@ export default function HeroSection() {
             </h1>
             
             <p className="text-lg text-gray-600 leading-relaxed max-w-lg">
-              Dr. Ugwu provides professional counselling services specializing in 
-              adolescent development, family dynamics, and mental health advocacy. 
-              Creating safe spaces for growth and healing.
+              Gilt Counselling provides professional therapy services for adolescents, youth, and families. 
+               We create safe, supportive environments where healing begins, growth is nurtured, and potential is unlocked.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -25,7 +24,7 @@ export default function HeroSection() {
                 Book Your Session
               </Link>
               <Link href="/about" className="btn-secondary text-center">
-                Meet Dr. Ugwu
+                About Gilt Counselling
               </Link>
             </div>
 

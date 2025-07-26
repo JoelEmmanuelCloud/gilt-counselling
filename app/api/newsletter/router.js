@@ -96,7 +96,7 @@ export async function POST(request) {
             <ul style="color: #00303F; line-height: 1.6;">
               <li>Weekly mental health insights and tips</li>
               <li>Parenting strategies for raising healthy teens</li>
-              <li>Latest blog posts from Dr. Ugwu</li>
+              <li>Latest blog posts from Gilt Counselling</li>
               <li>Updates on workshops and community events</li>
               <li>Exclusive resources for families</li>
             </ul>
@@ -116,7 +116,7 @@ export async function POST(request) {
             <p>If you have any questions or need support, don't hesitate to reach out:</p>
             <ul style="list-style: none; padding: 0;">
               <li>📧 Email: support@giltcounselling.com</li>
-              <li>📞 Phone: (123) 456-7890</li>
+              <li>📞 Phone: +234 803 309 4050</li>
               <li>🌐 Website: giltcounselling.com</li>
             </ul>
             
@@ -132,7 +132,7 @@ export async function POST(request) {
                 <a href="https://giltcounselling.com/privacy" style="color: #D4AF37;">Privacy Policy</a> | 
                 <a href="https://giltcounselling.com/contact" style="color: #D4AF37;">Contact Us</a>
               </p>
-              <p>Gilt Counselling<br>123 Wellness Drive, Suite 200<br>Your City, ST 12345</p>
+              <p>Gilt Counselling<br>No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria</p>
             </div>
           </div>
         </div>

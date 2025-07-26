@@ -48,9 +48,9 @@ export default function ContactPage() {
                   <div>
                     <p className="font-medium text-deepBlue">Address</p>
                     <p className="text-gray-600">
-                      123 Wellness Drive<br />
-                      Suite 200<br />
-                      Your City, ST 12345
+                      No 88 Woji Road, GRA Phase 2<br />
+                      Port Harcourt<br />
+                      Rivers State, Nigeria
                     </p>
                   </div>
                 </div>
@@ -60,7 +60,7 @@ export default function ContactPage() {
                   <div>
                     <p className="font-medium text-deepBlue">Phone</p>
                     <a href="tel:+1234567890" className="text-gray-600 hover:text-gold transition-colors">
-                      (123) 456-7890
+                      +234 803 309 4050
                     </a>
                   </div>
                 </div>

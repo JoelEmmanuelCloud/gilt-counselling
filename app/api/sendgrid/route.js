@@ -197,9 +197,9 @@ function generateNewsletterHTML(content, recipientName) {
             Gilt Counselling
           </h3>
           <p style="color: #6B7280; margin: 0; font-size: 14px;">
-            123 Wellness Drive, Suite 200<br>
-            Your City, ST 12345<br>
-            (123) 456-7890
+            No 88 Woji Road, GRA Phase 2, <br>
+            Port Harcourt, Rivers State, Nigeria<br>
+            +234 803 309 4050
           </p>
         </div>
         
@@ -259,7 +259,7 @@ function generateBookingReminderHTML(templateData, recipient) {
             <li>Please arrive 10 minutes early</li>
             <li>Bring a valid ID and insurance information</li>
             <li>If you need to reschedule, please call at least 24 hours in advance</li>
-            <li>Our office is located at 123 Wellness Drive, Suite 200</li>
+            <li>No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria</li>
           </ul>
         </div>
 
@@ -269,7 +269,7 @@ function generateBookingReminderHTML(templateData, recipient) {
             Questions? Need to reschedule?
           </p>
           <p style="color: #00303F; font-weight: bold; margin-bottom: 10px;">
-            📞 (123) 456-7890<br>
+            📞 +234 803 309 4050<br>
             ✉️ support@giltcounselling.com
           </p>
         </div>
@@ -311,7 +311,7 @@ function generateBulkEmailHTML(content, recipientName) {
       <div style="background: #F8F5F2; padding: 20px; text-align: center;">
         <p style="color: #6B7280; font-size: 14px; margin: 0;">
           <strong>Gilt Counselling</strong><br>
-          123 Wellness Drive, Suite 200 | (123) 456-7890<br>
+          No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria | +234 803 309 4050 <br>
           <a href="{{unsubscribe}}" style="color: #6B7280;">Unsubscribe</a>
         </p>
       </div>
