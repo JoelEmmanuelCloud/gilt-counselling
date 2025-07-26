@@ -103,7 +103,7 @@ export default function ContactForm() {
             value={formData.phone}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-            placeholder="(123) 456-7890"
+            placeholder="+234 803 309 4050"
           />
         </div>
 

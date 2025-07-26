@@ -344,8 +344,8 @@ export default function BookingPage() {
                     <span className="text-gold">📞</span>
                     <div>
                       <p className="font-medium text-deepBlue">Phone</p>
-                      <a href="tel:+1234567890" className="text-sm text-gray-600 hover:text-gold">
-                        (123) 456-7890
+                      <a href="tel:+234 803 309 4050" className="text-sm text-gray-600 hover:text-gold">
+                        +234 803 309 4050
                       </a>
                     </div>
                   </div>
@@ -463,7 +463,7 @@ export default function BookingPage() {
                   Questions about your appointment?
                 </p>
                 <div className="flex justify-center space-x-6 text-sm">
-                  <a href="tel:+1234567890" className="text-gold hover:text-yellow-600">
+                  <a href="tel:+234 803 309 4050" className="text-gold hover:text-yellow-600">
                     📞 (+234) 803-309-4050
                   </a>
                   <a href="mailto:support@giltcounselling.com" className="text-gold hover:text-yellow-600">

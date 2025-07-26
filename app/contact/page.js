@@ -59,7 +59,7 @@ export default function ContactPage() {
                   <span className="text-gold text-xl">📞</span>
                   <div>
                     <p className="font-medium text-deepBlue">Phone</p>
-                    <a href="tel:+1234567890" className="text-gray-600 hover:text-gold transition-colors">
+                    <a href="tel:+234 803 309 4050" className="text-gray-600 hover:text-gold transition-colors">
                       +234 803 309 4050
                     </a>
                   </div>
