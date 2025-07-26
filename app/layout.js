@@ -1,3 +1,20 @@
+//app/layout.js
+import { Inter, Playfair_Display } from 'next/font/google'
+import './globals.css'
+import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
+import { AuthProvider } from './lib/auth-provider'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter'
+})
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair'
+})
+
 export const metadata = {
   metadataBase: new URL('https://giltcounselling.com'),
   title: {
@@ -52,4 +69,22 @@ export const metadata = {
       'max-snippet': -1,
     },
   },
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="font-inter bg-cream text-deepBlue">
+        <AuthProvider>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </AuthProvider>
+      </body>
+    </html>
+  )
 }
