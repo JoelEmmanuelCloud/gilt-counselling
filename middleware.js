@@ -1,3 +1,4 @@
+// middleware.js
 import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
 
@@ -13,7 +14,6 @@ export default withAuth(
       }
     }
 
-    // For booking page, let the authorized callback handle it
     return NextResponse.next()
   },
   {
@@ -26,10 +26,8 @@ export default withAuth(
           return token?.role === 'admin'
         }
         
-        // Booking routes require authentication
-        if (pathname.startsWith('/booking')) {
-          return !!token
-        }
+        // Remove booking route protection from middleware
+        // Let the booking page handle authentication client-side
         
         // All other routes are public
         return true
@@ -40,8 +38,8 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    // Only protect specific routes, not everything
-    '/dashboard/:path*', 
-    '/booking/:path*'
+    // Only protect admin routes in middleware
+    '/dashboard/:path*'
+    // Remove '/booking/:path*' - let the page handle auth
   ]
 }
