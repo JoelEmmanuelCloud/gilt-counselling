@@ -212,10 +212,10 @@ export default function AboutPage() {
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <div className="prose prose-lg max-w-none text-gray-600">
                 <p className="text-lg leading-relaxed mb-6">
-                  "Gilt Counselling was born from a deep desire to make a meaningful difference. 
+                  Gilt Counselling was born from a deep desire to make a meaningful difference. 
                   in the lives of young people and their families. Having witnessed firsthand the 
                   transformative power of compassionate, evidence-based therapy, I am committed to 
-                  providing a sanctuary where healing can flourish."
+                  providing a sanctuary where healing can flourish.
                 </p>
                 
                 <p className="leading-relaxed mb-6">
