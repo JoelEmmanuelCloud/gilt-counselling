@@ -1,3 +1,4 @@
+//app/api/lib/auth-provide.js
 'use client'
 import { SessionProvider } from 'next-auth/react'
 
