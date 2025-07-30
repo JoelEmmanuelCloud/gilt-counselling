@@ -1,4 +1,4 @@
-// app/booking/page.js
+// app/booking/page.js - Updated for FREE services with TidyCal integration
 'use client'
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
@@ -24,7 +24,6 @@ export default function BookingPage() {
       id: 'teen-individual',
       name: 'Individual Teen Session',
       duration: '50 minutes',
-      price: 120,
       description: 'One-on-one counselling focused on teen-specific challenges and development.',
       features: ['Anxiety & Depression Support', 'Identity Development', 'Social Skills', 'Academic Stress']
     },
@@ -32,7 +31,6 @@ export default function BookingPage() {
       id: 'family-therapy',
       name: 'Family Therapy',
       duration: '75 minutes',
-      price: 150,
       description: 'Collaborative sessions to improve family communication and relationships.',
       features: ['Communication Skills', 'Conflict Resolution', 'Family Dynamics', 'Parenting Support']
     },
@@ -40,7 +38,6 @@ export default function BookingPage() {
       id: 'parent-coaching',
       name: 'Parent Coaching',
       duration: '60 minutes',
-      price: 100,
       description: 'Guidance for parents navigating teenage challenges and development.',
       features: ['Parenting Strategies', 'Setting Boundaries', 'Teen Mental Health', 'Crisis Management']
     },
@@ -48,9 +45,8 @@ export default function BookingPage() {
       id: 'group-session',
       name: 'Teen Group Session',
       duration: '90 minutes',
-      price: 60,
       description: 'Peer support groups for teens facing similar challenges.',
-      features: ['Peer Support', 'Social Skills', 'Shared Learning', 'Cost-Effective']
+      features: ['Peer Support', 'Social Skills', 'Shared Learning', 'Community Connection']
     }
   ]
 
@@ -62,43 +58,45 @@ export default function BookingPage() {
   }
 
   // Handle booking completion from TidyCal
-  const handleBookingComplete = (tidyCalData) => {
-    setBookingData({
+  const handleBookingComplete = async (tidyCalData) => {
+    const completeBookingData = {
       ...bookingData,
       ...tidyCalData,
       status: 'pending'
-    })
-    setBookingStep('confirmation')
+    }
+    
+    setBookingData(completeBookingData)
     
     // Save booking to database
-    saveBooking({
-      ...bookingData,
-      ...tidyCalData,
-      userId: session.user.id,
-      userEmail: session.user.email,
-      userName: session.user.name || session.user.email
-    })
-  }
-
-  // Save booking to database
-  const saveBooking = async (booking) => {
     try {
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(booking),
+        body: JSON.stringify({
+          service: tidyCalData.service,
+          date: tidyCalData.date,
+          time: tidyCalData.time,
+          duration: tidyCalData.duration,
+          notes: tidyCalData.notes || '',
+          tidyCalBookingId: tidyCalData.tidyCalBookingId
+        }),
       })
 
-      if (!response.ok) {
-        throw new Error('Failed to save booking')
+      if (response.ok) {
+        const result = await response.json()
+        setBookingData(prev => ({ ...prev, id: result.bookingId, bookingReference: result.bookingReference }))
+        setBookingStep('confirmation')
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save booking')
       }
-
-      const result = await response.json()
-      console.log('Booking saved:', result)
     } catch (error) {
       console.error('Error saving booking:', error)
+      alert('Booking saved in TidyCal but there was an issue with our system. Please contact us with your booking details.')
+      // Still show confirmation but with a warning
+      setBookingStep('confirmation')
     }
   }
 
@@ -133,6 +131,12 @@ export default function BookingPage() {
             <h1 className="font-playfair text-4xl font-bold text-deepBlue mb-4">
               Book Your Session
             </h1>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-800 font-semibold mb-2">✨ Professional Mental Health Support</p>
+              <p className="text-blue-700 text-sm">
+                Quality counselling services to support your mental health and wellbeing journey.
+              </p>
+            </div>
             <p className="text-lg text-gray-600">
               Schedule your counselling session with Gilt Counselling.
               Choose a time that works best for you or your family, and begin your journey with our lead counsellor, Dr. Ugwu.
@@ -212,7 +216,7 @@ export default function BookingPage() {
                 Choose Your Session Type
               </h2>
               <p className="text-gray-600">
-                Select the counselling service that best fits your needs.
+                Select the counselling service that best fits your needs. All services are completely free.
               </p>
             </div>
 
@@ -231,8 +235,8 @@ export default function BookingPage() {
                       <p className="text-sm text-gray-500">{service.duration}</p>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-gold">${service.price}</div>
-                      <div className="text-xs text-gray-500">per session</div>
+                      <div className="text-lg font-semibold text-deepBlue">{service.duration}</div>
+                      <div className="text-xs text-gray-500">session length</div>
                     </div>
                   </div>
 
@@ -258,8 +262,8 @@ export default function BookingPage() {
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="text-3xl mb-3">🏥</div>
-                <h3 className="font-semibold text-deepBlue mb-2">Insurance Accepted</h3>
-                <p className="text-sm text-gray-600">Most major insurance plans accepted. We'll verify your coverage.</p>
+                <h3 className="font-semibold text-deepBlue mb-2">Professional Care</h3>
+                <p className="text-sm text-gray-600">Licensed counsellors providing evidence-based mental health support.</p>
               </div>
               
               <div className="bg-white rounded-lg p-6 text-center">
@@ -271,7 +275,7 @@ export default function BookingPage() {
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="text-3xl mb-3">🔒</div>
                 <h3 className="font-semibold text-deepBlue mb-2">Confidential & Safe</h3>
-                <p className="text-sm text-gray-600">Your privacy is protected with HIPAA-compliant practices.</p>
+                <p className="text-sm text-gray-600">Your privacy is protected with professional confidentiality standards.</p>
               </div>
             </div>
           </div>
@@ -300,7 +304,7 @@ export default function BookingPage() {
                     Service: <span className="font-medium text-deepBlue">{selectedService?.name}</span>
                   </p>
                   <p className="text-sm text-gray-500">
-                    Duration: {selectedService?.duration} • Price: ${selectedService?.price}
+                    Duration: {selectedService?.duration}
                   </p>
                 </div>
                 
@@ -327,10 +331,6 @@ export default function BookingPage() {
                     <span className="text-gray-600">Duration:</span>
                     <span className="font-medium text-deepBlue">{selectedService?.duration}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Price:</span>
-                    <span className="font-bold text-gold">${selectedService?.price}</span>
-                  </div>
                 </div>
               </div>
 
@@ -344,7 +344,7 @@ export default function BookingPage() {
                     <span className="text-gold">📞</span>
                     <div>
                       <p className="font-medium text-deepBlue">Phone</p>
-                      <a href="tel:+234 803 309 4050" className="text-sm text-gray-600 hover:text-gold">
+                      <a href="tel:+2348033094050" className="text-sm text-gray-600 hover:text-gold">
                         +234 803 309 4050
                       </a>
                     </div>
@@ -368,23 +368,25 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              {/* Booking Policies */}
-              <div className="bg-cream rounded-xl p-6">
-                <h3 className="font-playfair text-lg font-semibold text-deepBlue mb-3">
-                  Booking Policies
+              {/* Community Support Message */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <h3 className="font-playfair text-lg font-semibold text-blue-800 mb-3">
+                  Professional Mental Health Support
                 </h3>
-                <ul className="text-sm text-gray-600 space-y-2">
-                  <li>• 24-hour cancellation notice required</li>
-                  <li>• Late arrivals may result in shortened sessions</li>
-                  <li>• Payment due at time of service</li>
-                  <li>• Insurance verification available</li>
-                  <li>• Secure video sessions available</li>
+                <p className="text-sm text-blue-700 mb-3">
+                  Quality counselling services provided by licensed professionals to support your wellbeing journey.
+                </p>
+                <ul className="text-xs text-blue-600 space-y-1">
+                  <li>• Licensed, qualified counsellors</li>
+                  <li>• Confidential and safe environment</li>
+                  <li>• Evidence-based therapeutic approaches</li>
+                  <li>• Flexible scheduling options</li>
                 </ul>
               </div>
             </div>
           </div>
         ) : (
-          // Confirmation Step
+          // Confirmation Step - Use your existing BookingConfirmation component
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-xl shadow-sm p-8 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -403,12 +405,12 @@ export default function BookingPage() {
               {/* Booking Details */}
               <div className="bg-cream rounded-lg p-6 mb-8 text-left">
                 <h3 className="font-playfair text-xl font-semibold text-deepBlue mb-4">
-                  Appointment Details
+                  Your Appointment Details
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Service:</span>
-                    <span className="font-medium text-deepBlue">{bookingData.service?.name}</span>
+                    <span className="font-medium text-deepBlue">{bookingData.service}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Date:</span>
@@ -420,24 +422,15 @@ export default function BookingPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Duration:</span>
-                    <span className="font-medium text-deepBlue">{bookingData.service?.duration}</span>
+                    <span className="font-medium text-deepBlue">{bookingData.duration}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Price:</span>
-                    <span className="font-bold text-gold">${bookingData.service?.price}</span>
-                  </div>
+                  {bookingData.bookingReference && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Reference:</span>
+                      <span className="font-mono text-sm text-deepBlue">{bookingData.bookingReference}</span>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              {/* Next Steps */}
-              <div className="bg-blue-50 rounded-lg p-6 mb-8 text-left">
-                <h3 className="font-semibold text-deepBlue mb-3">What Happens Next?</h3>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>✓ You'll receive a confirmation email within 5 minutes</li>
-                  <li>✓ Our team will contact you within 24 hours to confirm details</li>
-                  <li>✓ You'll receive a reminder email 24 hours before your session</li>
-                  <li>✓ If you chose video session, you'll get the meeting link via email</li>
-                </ul>
               </div>
 
               {/* Action Buttons */}
@@ -463,8 +456,8 @@ export default function BookingPage() {
                   Questions about your appointment?
                 </p>
                 <div className="flex justify-center space-x-6 text-sm">
-                  <a href="tel:+234 803 309 4050" className="text-gold hover:text-yellow-600">
-                    📞 (+234) 803-309-4050
+                  <a href="tel:+2348033094050" className="text-gold hover:text-yellow-600">
+                    📞 +234 803 309 4050
                   </a>
                   <a href="mailto:support@giltcounselling.com" className="text-gold hover:text-yellow-600">
                     ✉️ Email Support
