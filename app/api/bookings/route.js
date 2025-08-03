@@ -1,4 +1,4 @@
-// app/api/bookings/route.js - Updated for free services
+// app/api/bookings/route.js 
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { MongoClient } from 'mongodb'
