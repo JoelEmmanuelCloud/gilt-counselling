@@ -1,22 +1,21 @@
-//components/booking/BookingConfirmation.js
 'use client'
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { formatDate, formatTime } from '@/lib/utils'
 
 export default function BookingConfirmation({ bookingData }) {
   const { data: session } = useSession()
   const [isLoading, setIsLoading] = useState(false)
   const [confirmationSent, setConfirmationSent] = useState(false)
   const [error, setError] = useState(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     // Send confirmation email when component mounts
-    if (bookingData && !confirmationSent && !error) {
+    if (bookingData && !confirmationSent && !error && retryCount === 0) {
       sendConfirmationEmail()
     }
-  }, [bookingData, confirmationSent, error])
+  }, [bookingData, confirmationSent, error, retryCount])
 
   const sendConfirmationEmail = async () => {
     try {
@@ -39,14 +38,27 @@ export default function BookingConfirmation({ bookingData }) {
       if (response.ok) {
         setConfirmationSent(true)
         if (result.emailError) {
-          setError(result.emailError)
+          setError(`Email sent with issues: ${result.emailError}`)
         }
       } else {
         throw new Error(result.error || 'Failed to send confirmation')
       }
     } catch (error) {
       console.error('Failed to send confirmation email:', error)
-      setError('Unable to send confirmation email. Please contact us if you don\'t receive it.')
+      setRetryCount(prev => prev + 1)
+      
+      // Set different error messages based on retry count
+      if (retryCount < 2) {
+        setError('Unable to send confirmation email. We\'ll retry automatically.')
+        // Auto-retry after 3 seconds
+        setTimeout(() => {
+          if (retryCount < 2) {
+            sendConfirmationEmail()
+          }
+        }, 3000)
+      } else {
+        setError('Email delivery is experiencing issues. Your booking is confirmed, but please contact us if you don\'t receive the confirmation email.')
+      }
     } finally {
       setIsLoading(false)
     }
@@ -55,13 +67,22 @@ export default function BookingConfirmation({ bookingData }) {
   const addToCalendar = () => {
     try {
       const startDate = new Date(`${bookingData.date}T${bookingData.time}`)
+      
+      // Validate the date
+      if (isNaN(startDate.getTime())) {
+        // Fallback date parsing
+        const [year, month, day] = bookingData.date.split('-')
+        const [hours, minutes] = bookingData.time.split(':')
+        const startDate = new Date(year, month - 1, day, hours, minutes)
+      }
+      
       const endDate = new Date(startDate.getTime() + (60 * 60 * 1000)) // Add 1 hour
 
       const eventDetails = {
         title: `Counselling Session - ${bookingData.service}`,
         start: startDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
         end: endDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z',
-        description: `Counselling Session at Gilt Counselling.\\n\\nService: ${bookingData.service}\\nLocation: No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria`,
+        description: `Counselling Session at Gilt Counselling.\\n\\nService: ${bookingData.service}\\nLocation: No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria\\n\\nBooking Reference: ${bookingData.id || bookingData._id}`,
         location: 'No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria'
       }
 
@@ -70,7 +91,20 @@ export default function BookingConfirmation({ bookingData }) {
       window.open(googleCalendarUrl, '_blank')
     } catch (error) {
       console.error('Error creating calendar event:', error)
-      alert('Unable to add to calendar. Please add the appointment manually.')
+      
+      // Fallback: create a simpler calendar event
+      const simpleEvent = {
+        title: `Counselling Session - ${bookingData.service}`,
+        details: `Date: ${bookingData.date}\\nTime: ${bookingData.time}\\nLocation: Gilt Counselling, Port Harcourt`
+      }
+      
+      const fallbackUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(simpleEvent.title)}&details=${encodeURIComponent(simpleEvent.details)}`
+      
+      try {
+        window.open(fallbackUrl, '_blank')
+      } catch (fallbackError) {
+        alert('Unable to add to calendar automatically. Please add the appointment manually:\\n\\nDate: ' + bookingData.date + '\\nTime: ' + bookingData.time + '\\nService: ' + bookingData.service)
+      }
     }
   }
 
@@ -79,40 +113,80 @@ export default function BookingConfirmation({ bookingData }) {
 Gilt Counselling - Appointment Confirmation
 
 Service: ${bookingData.service}
-Date: ${formatDate(bookingData.date)}
-Time: ${formatTime(bookingData.time)}
+Date: ${bookingData.date}
+Time: ${bookingData.time}
+Duration: ${bookingData.duration || '60 minutes'}
 Location: No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria
 
 Status: Pending Confirmation
-Booking Reference: ${bookingData.id || bookingData._id || 'N/A'}
+Booking Reference: ${bookingData.bookingReference || bookingData.id || bookingData._id || 'N/A'}
 
-Contact: +234 803 309 4050
+Contact Information:
+Phone: +234 803 309 4050
 Email: support@giltcounselling.com
+Website: https://giltcounselling.com
+
+Important Notes:
+- Please arrive 10 minutes early
+- Bring a valid ID
+- Call 24 hours ahead if you need to reschedule
+- Your appointment will be confirmed within 24 hours
     `.trim()
 
-    navigator.clipboard.writeText(details).then(() => {
-      alert('Booking details copied to clipboard!')
-    }).catch(() => {
-      alert('Unable to copy to clipboard')
-    })
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(details).then(() => {
+        alert('Booking details copied to clipboard!')
+      }).catch(() => {
+        fallbackCopy(details)
+      })
+    } else {
+      fallbackCopy(details)
+    }
   }
 
+  const fallbackCopy = (text) => {
+    // Create a temporary textarea element
+    const textArea = document.createElement('textarea')
+    textArea.value = text
+    textArea.style.position = 'fixed'
+    textArea.style.left = '-999999px'
+    textArea.style.top = '-999999px'
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    
+    try {
+      document.execCommand('copy')
+      alert('Booking details copied to clipboard!')
+    } catch (err) {
+      alert('Unable to copy to clipboard. Please copy the details manually from the confirmation email.')
+    } finally {
+      document.body.removeChild(textArea)
+    }
+  }
+
+  // Handle missing or invalid booking data
   if (!bookingData) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">❌</span>
           </div>
           <h1 className="font-playfair text-2xl font-bold text-deepBlue mb-2">
-            Booking Error
+            Booking Information Missing
           </h1>
           <p className="text-gray-600 mb-6">
-            We couldn't find your booking information. Please try again.
+            We couldn't find your booking information. This might be due to a connection issue.
           </p>
-          <Link href="/booking" className="btn-primary">
-            Book Another Session
-          </Link>
+          <div className="space-y-3">
+            <Link href="/booking" className="btn-primary w-full">
+              Try Booking Again
+            </Link>
+            <a href="tel:+2348033094050" className="btn-secondary w-full">
+              Call Us: +234 803 309 4050
+            </a>
+          </div>
         </div>
       </div>
     )
@@ -128,10 +202,10 @@ Email: support@giltcounselling.com
               <span className="text-3xl">✅</span>
             </div>
             <h1 className="font-playfair text-3xl font-bold text-deepBlue mb-2">
-              Booking Confirmed!
+              Booking Received!
             </h1>
             <p className="text-lg text-gray-600">
-              Your counselling session has been successfully scheduled.
+              Your counselling session request has been successfully submitted.
             </p>
           </div>
 
@@ -169,8 +243,11 @@ Email: support@giltcounselling.com
                 <div>
                   <p className="font-medium text-deepBlue">Date & Time</p>
                   <p className="text-gray-600">
-                    {formatDate(bookingData.date)} at {formatTime(bookingData.time)}
+                    {bookingData.date} at {bookingData.time}
                   </p>
+                  {bookingData.duration && (
+                    <p className="text-sm text-gray-500">Duration: {bookingData.duration}</p>
+                  )}
                 </div>
               </div>
 
@@ -222,14 +299,16 @@ Email: support@giltcounselling.com
                 </div>
               )}
 
-              {(bookingData.id || bookingData._id) && (
+              {(bookingData.bookingReference || bookingData.id || bookingData._id) && (
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
                     <span className="text-indigo-600">#</span>
                   </div>
                   <div>
                     <p className="font-medium text-deepBlue">Booking Reference</p>
-                    <p className="text-gray-600 font-mono text-sm">{bookingData.id || bookingData._id}</p>
+                    <p className="text-gray-600 font-mono text-sm">
+                      {bookingData.bookingReference || bookingData.id || bookingData._id}
+                    </p>
                   </div>
                 </div>
               )}
@@ -281,24 +360,29 @@ Email: support@giltcounselling.com
                 <p className="font-medium text-deepBlue">
                   {isLoading ? 'Sending confirmation...' : 
                    confirmationSent ? 'Confirmation email sent!' : 
-                   error ? 'Email delivery issue' :
+                   error ? 'Email delivery notice' :
                    'Preparing confirmation email...'}
                 </p>
                 <p className="text-sm text-gray-600">
                   {confirmationSent ? 
-                    'Check your email for appointment details and reminders.' :
+                    'Check your email for appointment details and next steps.' :
                     error ? error :
                     'You\'ll receive a confirmation email shortly.'
                   }
                 </p>
+                {retryCount > 0 && retryCount < 3 && (
+                  <p className="text-xs text-blue-600 mt-1">
+                    Retry attempt {retryCount} of 3...
+                  </p>
+                )}
               </div>
-              {error && (
+              {error && retryCount >= 2 && (
                 <button
                   onClick={sendConfirmationEmail}
                   className="btn-primary text-sm px-3 py-1"
                   disabled={isLoading}
                 >
-                  Retry
+                  Retry Email
                 </button>
               )}
             </div>
@@ -316,7 +400,7 @@ Email: support@giltcounselling.com
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-blue-600 mt-1">•</span>
-                <span>Bring a valid ID and insurance information if applicable</span>
+                <span>Bring a valid ID and any relevant medical information</span>
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-blue-600 mt-1">•</span>
