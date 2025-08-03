@@ -8,12 +8,13 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
   const [retryCount, setRetryCount] = useState(0)
   const [fallbackMode, setFallbackMode] = useState(false)
 
-  // Service mapping to TidyCal booking links - Updated with correct domain
+  // Updated service mapping to match your actual TidyCal URLs
   const tidyCalLinks = {
     'teen-individual': 'https://tidycal.com/giltcounselling/individual-teen-session',
-    'family-therapy': 'https://tidycal.com/giltcounselling/family-therapy', 
+    'family-therapy': 'https://tidycal.com/giltcounselling/family-therapy',
     'parent-coaching': 'https://tidycal.com/giltcounselling/parent-coaching',
-    'group-session': 'https://tidycal.com/giltcounselling/group-session'
+    'group-session': 'https://tidycal.com/giltcounselling/group-session',
+
   }
 
   // Alternative booking links in case TidyCal is down
@@ -21,35 +22,10 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
     'teen-individual': '/contact?service=individual-teen-session',
     'family-therapy': '/contact?service=family-therapy',
     'parent-coaching': '/contact?service=parent-coaching', 
-    'group-session': '/contact?service=group-session'
+    'group-session': '/contact?service=group-session',
   }
 
   useEffect(() => {
-    // Check if TidyCal domain is accessible
-    const checkTidyCalAvailability = async () => {
-      try {
-        // Test if we can reach TidyCal
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
-        
-        const response = await fetch('https://tidycal.com', {
-          method: 'HEAD',
-          mode: 'no-cors',
-          signal: controller.signal
-        })
-        
-        clearTimeout(timeoutId)
-        setIsLoading(false)
-      } catch (error) {
-        console.warn('TidyCal appears to be unavailable:', error)
-        setFallbackMode(true)
-        setIsLoading(false)
-        setError('Our booking calendar is temporarily unavailable. Please use the alternative booking options below.')
-      }
-    }
-
-    checkTidyCalAvailability()
-
     // Listen for messages from TidyCal iframe
     const handleMessage = (event) => {
       // Verify origin for security - check for tidycal.com domain
@@ -62,7 +38,7 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
             service: getServiceName(serviceId),
             date: event.data.date,
             time: event.data.time,
-            duration: event.data.duration,
+            duration: '1 hour', // All services are 1 hour as per your setup
             tidyCalBookingId: event.data.bookingId,
             notes: event.data.notes || ''
           }
@@ -93,7 +69,7 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
           setError('Booking calendar is taking longer than expected to load.')
         }
       }
-    }, 10000) // 10 second timeout
+    }, 8000) // 8 second timeout
 
     return () => {
       window.removeEventListener('message', handleMessage)
@@ -106,7 +82,8 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
       'teen-individual': 'Individual Teen Session',
       'family-therapy': 'Family Therapy',
       'parent-coaching': 'Parent Coaching', 
-      'group-session': 'Teen Group Session'
+      'group-session': 'Group Session',
+      '60-minute-meeting': '60 Minute Meeting'
     }
     return serviceNames[serviceId] || 'Counselling Session'
   }
@@ -118,12 +95,19 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
       return null
     }
 
-    // Add query parameters for better integration
+    // Enhanced query parameters for better integration
     const params = new URLSearchParams({
       embed: 'true',
       hideHeader: 'true',
+      hideFooter: 'true',
+      hideBranding: 'false', // Keep TidyCal branding for trust
       theme: 'light',
-      primary_color: 'D4AF37' // Gold color to match your theme
+      primary_color: 'D4AF37', // Gold color to match your theme
+      background_color: 'FFFFFF',
+      text_color: '000000',
+      timezone: 'Africa/Lagos', // Set correct timezone for Nigeria
+      start_date: new Date().toISOString().split('T')[0], // Start from today
+      autosize: 'true'
     })
 
     return `${baseUrl}?${params.toString()}`
@@ -141,27 +125,16 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
   }
 
   const handleDirectBooking = () => {
-    // Simulate a completed booking for testing/fallback
-    const mockBookingData = {
-      service: getServiceName(serviceId),
-      date: new Date().toISOString().split('T')[0], // Today's date
-      time: '10:00',
-      duration: getServiceDuration(serviceId),
-      tidyCalBookingId: `mock-${Date.now()}`,
-      notes: 'Booked via fallback method'
+    // Open TidyCal in new window for better experience
+    const tidyCalUrl = tidyCalLinks[serviceId]
+    if (tidyCalUrl) {
+      window.open(tidyCalUrl, '_blank', 'noopener,noreferrer')
     }
-    
-    onBookingComplete && onBookingComplete(mockBookingData)
   }
 
   const getServiceDuration = (serviceId) => {
-    const durations = {
-      'teen-individual': '50 minutes',
-      'family-therapy': '75 minutes',
-      'parent-coaching': '60 minutes',
-      'group-session': '90 minutes'
-    }
-    return durations[serviceId] || '60 minutes'
+    // All services are 1 hour as per your TidyCal setup
+    return '1 hour'
   }
 
   const tidyCalUrl = getTidyCalUrl()
@@ -320,12 +293,12 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
         </div>
       )}
       
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden min-h-[600px]">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden min-h-[700px]">
         <iframe
           ref={iframeRef}
           src={tidyCalUrl}
           width="100%"
-          height="600"
+          height="700"
           frameBorder="0"
           title={`Book Your ${getServiceName(serviceId)}`}
           className="w-full"
@@ -338,7 +311,8 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
             setIsLoading(false)
             setError('Failed to load booking calendar. Our booking system may be temporarily unavailable.')
           }}
-          sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups"
+          allow="camera; microphone; geolocation"
         />
       </div>
 
@@ -348,14 +322,12 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
           Having trouble with the calendar?
         </p>
         <div className="flex flex-col sm:flex-row gap-2 justify-center">
-          <a 
-            href={tidyCalLinks[serviceId]} 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <button
+            onClick={handleDirectBooking}
             className="btn-secondary text-sm"
           >
             Open in New Window
-          </a>
+          </button>
           <a 
             href="tel:+2348033094050" 
             className="btn-secondary text-sm"
