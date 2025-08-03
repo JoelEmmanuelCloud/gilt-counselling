@@ -114,16 +114,6 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Debug info - remove this in production */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
-          <p className="font-bold">Debug Info:</p>
-          <p>Session Status: {status}</p>
-          <p>Has Session: {session ? 'Yes' : 'No'}</p>
-          <p>User Email: {session?.user?.email || 'None'}</p>
-        </div>
-      )}
-
       {/* Header */}
       <section className="bg-white shadow-sm">
         <div className="container-max section-padding py-8">
