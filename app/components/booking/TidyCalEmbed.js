@@ -1,23 +1,21 @@
+// components/booking/TidyCalEmbed.js - Updated for redirect flow
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
+export default function TidyCalEmbed({ serviceId }) {
   const iframeRef = useRef(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [retryCount, setRetryCount] = useState(0)
   const [fallbackMode, setFallbackMode] = useState(false)
 
-  // Updated service mapping to match your actual TidyCal URLs
   const tidyCalLinks = {
     'teen-individual': 'https://tidycal.com/giltcounselling/individual-teen-session',
     'family-therapy': 'https://tidycal.com/giltcounselling/family-therapy',
     'parent-coaching': 'https://tidycal.com/giltcounselling/parent-coaching',
     'group-session': 'https://tidycal.com/giltcounselling/group-session',
-
   }
 
-  // Alternative booking links in case TidyCal is down
   const fallbackLinks = {
     'teen-individual': '/contact?service=individual-teen-session',
     'family-therapy': '/contact?service=family-therapy',
@@ -26,34 +24,23 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
   }
 
   useEffect(() => {
-    // Listen for messages from TidyCal iframe
+    // Simpler message handling since we're using redirects
     const handleMessage = (event) => {
-      // Verify origin for security - check for tidycal.com domain
       if (!event.origin.includes('tidycal.com')) return
 
       try {
-        // Handle different TidyCal events
-        if (event.data.type === 'booking_completed') {
-          const bookingData = {
-            service: getServiceName(serviceId),
-            date: event.data.date,
-            time: event.data.time,
-            duration: '1 hour', // All services are 1 hour as per your setup
-            tidyCalBookingId: event.data.bookingId,
-            notes: event.data.notes || ''
-          }
-          
-          onBookingComplete && onBookingComplete(bookingData)
-        }
-
         if (event.data.type === 'iframe_loaded') {
           setIsLoading(false)
           setError(null)
         }
 
         if (event.data.type === 'booking_error') {
-          setError('Failed to complete booking. Please try again or use alternative booking methods.')
+          setError('Booking system encountered an error. Please try alternative booking methods.')
+          setFallbackMode(true)
         }
+
+        // Note: We don't need to handle booking_completed here anymore
+        // because TidyCal will redirect to our confirmation page
       } catch (msgError) {
         console.error('Error handling TidyCal message:', msgError)
       }
@@ -61,29 +48,26 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
 
     window.addEventListener('message', handleMessage)
     
-    // Set a fallback timeout to hide loading
+    // Set fallback timeout
     const loadingTimeout = setTimeout(() => {
       if (isLoading) {
         setIsLoading(false)
-        if (!fallbackMode) {
-          setError('Booking calendar is taking longer than expected to load.')
-        }
+        setError('Booking calendar is taking longer than expected to load.')
       }
-    }, 8000) // 8 second timeout
+    }, 8000)
 
     return () => {
       window.removeEventListener('message', handleMessage)
       clearTimeout(loadingTimeout)
     }
-  }, [serviceId, onBookingComplete, isLoading, fallbackMode])
+  }, [serviceId, isLoading, fallbackMode])
 
   const getServiceName = (serviceId) => {
     const serviceNames = {
       'teen-individual': 'Individual Teen Session',
       'family-therapy': 'Family Therapy',
       'parent-coaching': 'Parent Coaching', 
-      'group-session': 'Group Session',
-      '60-minute-meeting': '60 Minute Meeting'
+      'group-session': 'Group Session'
     }
     return serviceNames[serviceId] || 'Counselling Session'
   }
@@ -95,18 +79,17 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
       return null
     }
 
-    // Enhanced query parameters for better integration
     const params = new URLSearchParams({
       embed: 'true',
       hideHeader: 'true',
       hideFooter: 'true',
-      hideBranding: 'false', // Keep TidyCal branding for trust
+      hideBranding: 'false',
       theme: 'light',
-      primary_color: 'D4AF37', // Gold color to match your theme
+      primary_color: 'D4AF37',
       background_color: 'FFFFFF',
       text_color: '000000',
-      timezone: 'Africa/Lagos', // Set correct timezone for Nigeria
-      start_date: new Date().toISOString().split('T')[0], // Start from today
+      timezone: 'Africa/Lagos',
+      start_date: new Date().toISOString().split('T')[0],
       autosize: 'true'
     })
 
@@ -118,23 +101,16 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
     setIsLoading(true)
     setRetryCount(prev => prev + 1)
     
-    // Force iframe reload
     if (iframeRef.current) {
       iframeRef.current.src = getTidyCalUrl()
     }
   }
 
   const handleDirectBooking = () => {
-    // Open TidyCal in new window for better experience
     const tidyCalUrl = tidyCalLinks[serviceId]
     if (tidyCalUrl) {
       window.open(tidyCalUrl, '_blank', 'noopener,noreferrer')
     }
-  }
-
-  const getServiceDuration = (serviceId) => {
-    // All services are 1 hour as per your TidyCal setup
-    return '1 hour'
   }
 
   const tidyCalUrl = getTidyCalUrl()
@@ -195,6 +171,25 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
               </a>
             </div>
 
+            {/* WhatsApp Booking */}
+            <div className="border border-gray-200 rounded-lg p-4 hover:border-gold transition-colors">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-2xl">💬</span>
+                <h4 className="font-semibold text-deepBlue">WhatsApp</h4>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">
+                Quick booking via WhatsApp message.
+              </p>
+              <a 
+                href={`https://wa.me/2348033094050?text=Hi! I'd like to book a ${getServiceName(serviceId)}. When do you have availability?`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary w-full text-center"
+              >
+                WhatsApp Us
+              </a>
+            </div>
+
             {/* Email Booking */}
             <div className="border border-gray-200 rounded-lg p-4 hover:border-gold transition-colors">
               <div className="flex items-center space-x-3 mb-3">
@@ -228,28 +223,8 @@ export default function TidyCalEmbed({ serviceId, onBookingComplete }) {
                 Contact Form
               </a>
             </div>
-
-            {/* WhatsApp Booking */}
-            <div className="border border-gray-200 rounded-lg p-4 hover:border-gold transition-colors">
-              <div className="flex items-center space-x-3 mb-3">
-                <span className="text-2xl">💬</span>
-                <h4 className="font-semibold text-deepBlue">WhatsApp</h4>
-              </div>
-              <p className="text-sm text-gray-600 mb-3">
-                Quick booking via WhatsApp message.
-              </p>
-              <a 
-                href={`https://wa.me/2348033094050?text=Hi! I'd like to book a ${getServiceName(serviceId)}. When do you have availability?`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary w-full text-center"
-              >
-                WhatsApp Us
-              </a>
-            </div>
           </div>
 
-          {/* Emergency Note */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> If this is urgent or you're experiencing a mental health crisis, 
