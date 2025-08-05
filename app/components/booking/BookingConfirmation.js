@@ -256,8 +256,6 @@ Important Notes:
                   <span className="text-white">💰</span>
                 </div>
                 <div>
-                  <p className="font-medium text-deepBlue">Fee</p>
-                  <p className="text-gray-600 font-semibold text-green-600">Free of Charge</p>
                   <p className="text-sm text-gray-500">Community mental health support</p>
                 </div>
               </div>
