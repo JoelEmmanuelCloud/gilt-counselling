@@ -229,7 +229,7 @@ export default function TidyCalEmbed({ serviceId }) {
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> If this is urgent or you're experiencing a mental health crisis, 
               please call our emergency line at <a href="tel:+2348033094050" className="underline">+234 803 309 4050</a> 
-              or contact emergency services at 199.
+              
             </p>
           </div>
         </div>
