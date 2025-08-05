@@ -1,4 +1,4 @@
-// app/booking/page.js - Updated for FREE services with TidyCal integration
+// app/booking/page.js 
 'use client'
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
