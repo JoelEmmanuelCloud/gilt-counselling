@@ -1,3 +1,4 @@
+//app/api/auth/[...nextauth]/route.js
 import NextAuth from 'next-auth'
 import EmailProvider from 'next-auth/providers/email'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
