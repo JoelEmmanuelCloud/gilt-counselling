@@ -3,12 +3,21 @@ import { getServerSession } from 'next-auth/next'
 import { redirect } from 'next/navigation'
 import AdminLayout from '@/components/dashboard/AdminLayout'
 import Link from 'next/link'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route' // Import your auth config
 
 export default async function DashboardPage() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions) // ✅ Pass auth config
   
-  if (!session || session.user.role !== 'admin') {
-    redirect('/auth/signin')
+  console.log('Dashboard session check:', session) // Debug log
+  
+  if (!session) {
+    console.log('No session found, redirecting to signin')
+    redirect('/auth/signin?callbackUrl=/dashboard')
+  }
+  
+  if (session.user.role !== 'admin') {
+    console.log('User is not admin, redirecting. Role:', session.user.role)
+    redirect('/')
   }
 
   // Mock data - in real app, fetch from database
@@ -31,7 +40,7 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-gray-600 mt-2">
             Welcome back, Dr. Ugwu
-            Here’s an overview of your practice activity at Gilt Counselling.
+            Here's an overview of your practice activity at Gilt Counselling.
           </p>
         </div>
 

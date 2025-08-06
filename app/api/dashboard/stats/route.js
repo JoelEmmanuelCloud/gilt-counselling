@@ -1,26 +1,30 @@
 //app/api/dashboard/stats/route.js
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../../auth/[...nextauth]/route' // Import auth options
 import { MongoClient } from 'mongodb'
 
 const client = new MongoClient(process.env.MONGODB_URI)
 
 export async function GET(request) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession(authOptions) // ✅ Pass auth config
     
+    console.log('Stats API session check:', session) // Debug log
+        
     if (!session || session.user.role !== 'admin') {
+      console.log('Unauthorized access to stats API. Session:', !!session, 'Role:', session?.user?.role)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     await client.connect()
     const db = client.db('gilt-counselling')
-    
+        
     // Get current date ranges
     const now = new Date()
     const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    
+        
     // Aggregate statistics
     const [
       totalBookings,
@@ -79,8 +83,7 @@ export async function GET(request) {
     }
 
     return NextResponse.json(stats)
-
-  } catch (error) {
+   } catch (error) {
     console.error('Get dashboard stats error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
