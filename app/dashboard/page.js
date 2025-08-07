@@ -1,23 +1,59 @@
 //app/dashboard/page.js
-import { getServerSession } from 'next-auth/next'
-import { redirect } from 'next/navigation'
+'use client'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import AdminLayout from '@/components/dashboard/AdminLayout'
 import Link from 'next/link'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route' // Import your auth config
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions) // ✅ Pass auth config
-  
-  console.log('Dashboard session check:', session) // Debug log
-  
-  if (!session) {
-    console.log('No session found, redirecting to signin')
-    redirect('/auth/signin?callbackUrl=/dashboard')
+export default function DashboardPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  // Debug logging
+  useEffect(() => {
+ 
+  }, [session, status])
+
+  // Handle authentication client-side
+  useEffect(() => {
+    if (status === 'loading') return // Still loading
+
+    if (!session) {
+
+      router.push('/auth/signin?callbackUrl=/dashboard')
+      return
+    }
+
+    if (session.user.role !== 'admin') {
+      router.push('/')
+      return
+    }
+  }, [session, status, router])
+
+  // Loading state
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto mb-4"></div>
+          <p className="text-deepBlue">Loading dashboard...</p>
+          <p className="text-sm text-gray-500 mt-2">Status: {status}</p>
+        </div>
+      </div>
+    )
   }
-  
-  if (session.user.role !== 'admin') {
-    console.log('User is not admin, redirecting. Role:', session.user.role)
-    redirect('/')
+
+  // Don't render dashboard content if not authenticated or not admin
+  if (!session || session.user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto mb-4"></div>
+          <p className="text-deepBlue">Checking permissions...</p>
+        </div>
+      </div>
+    )
   }
 
   // Mock data - in real app, fetch from database
@@ -39,9 +75,18 @@ export default async function DashboardPage() {
             Admin Dashboard
           </h1>
           <p className="text-gray-600 mt-2">
-            Welcome back, Dr. Ugwu
+            Welcome back, {session.user.email}!
             Here's an overview of your practice activity at Gilt Counselling.
           </p>
+        </div>
+
+        {/* Debug Info - Remove in production */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <h3 className="font-semibold text-yellow-800">Debug Info (Remove in production):</h3>
+          <p className="text-sm text-yellow-700">Email: {session.user.email}</p>
+          <p className="text-sm text-yellow-700">Role: {session.user.role}</p>
+          <p className="text-sm text-yellow-700">User ID: {session.user.id}</p>
+          <p className="text-sm text-yellow-700">Session Status: {status}</p>
         </div>
 
         {/* Stats Grid */}
