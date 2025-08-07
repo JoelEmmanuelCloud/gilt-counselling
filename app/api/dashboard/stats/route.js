@@ -10,10 +10,10 @@ export async function GET(request) {
   try {
     const session = await getServerSession(authOptions) // ✅ Pass auth config
     
-    console.log('Stats API session check:', session) // Debug log
+
         
     if (!session || session.user.role !== 'admin') {
-      console.log('Unauthorized access to stats API. Session:', !!session, 'Role:', session?.user?.role)
+
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

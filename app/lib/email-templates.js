@@ -32,7 +32,7 @@ export const emailTemplates = {
 
     try {
       await sgMail.send(msg)
-      console.log(`Magic link sent to ${email}`)
+
       return { success: true }
     } catch (error) {
       console.error('Magic link email error:', error)
@@ -78,7 +78,7 @@ export const emailTemplates = {
 
     try {
       await sgMail.send(msg)
-      console.log(`Booking confirmation sent to ${email}`)
+
       return { success: true }
     } catch (error) {
       console.error('Booking confirmation email error:', error)
@@ -123,7 +123,6 @@ export const emailTemplates = {
 
     try {
       await sgMail.send(msg)
-      console.log(`Contact response sent to ${email}`)
       return { success: true }
     } catch (error) {
       console.error('Contact response email error:', error)
@@ -152,7 +151,6 @@ export const emailTemplates = {
 
     try {
       await sgMail.send(msg)
-      console.log(`Newsletter welcome sent to ${email}`)
       return { success: true }
     } catch (error) {
       console.error('Newsletter welcome email error:', error)
@@ -235,7 +233,6 @@ export const emailTemplates = {
 
     try {
       await sgMail.send(msg)
-      console.log(`Admin notification sent: ${type}`)
       return { success: true }
     } catch (error) {
       console.error('Admin notification email error:', error)

@@ -82,7 +82,7 @@ export async function POST(request) {
         await emailTemplates.sendBookingConfirmation(emailData)
         
         emailSent = true
-        console.log(`Confirmation email sent successfully for booking ${bookingId}`)
+     
         
       } catch (emailSendError) {
         console.error('Failed to send confirmation email:', emailSendError)

@@ -13,10 +13,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('Starting reminder system...')
+
     const results = await ReminderSystem.sendAppointmentReminders()
-    
-    console.log('Reminder system completed:', results)
+
     
     return NextResponse.json({
       success: true,

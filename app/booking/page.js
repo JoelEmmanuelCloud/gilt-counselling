@@ -15,8 +15,7 @@ export default function BookingPage() {
 
   // Debug logging
   useEffect(() => {
-    console.log('Booking page - Session status:', status)
-    console.log('Booking page - Session data:', session)
+
   }, [session, status])
 
   const services = [

@@ -200,7 +200,7 @@ export default function BookingsPage() {
                           <button
                             onClick={() => {
                               // Open booking details modal
-                              console.log('View booking details:', booking)
+              
                             }}
                             className="text-gold hover:text-yellow-600 transition-colors"
                           >
