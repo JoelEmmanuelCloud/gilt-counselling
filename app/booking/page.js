@@ -2,21 +2,58 @@
 'use client'
 import { useSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import TidyCalEmbed from '@/components/booking/TidyCalEmbed'
 import AuthForm from '@/components/forms/AuthForm'
 
 export default function BookingPage() {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const [showAuthForm, setShowAuthForm] = useState(false)
   const [selectedService, setSelectedService] = useState(null)
   const [bookingStep, setBookingStep] = useState('select') // 'select', 'calendar', 'confirmation'
   const [bookingData, setBookingData] = useState({})
+  const [isCheckingProfile, setIsCheckingProfile] = useState(false)
 
-  // Debug logging
+  // Handle authentication and profile completion check
   useEffect(() => {
+    if (status === 'loading') return // Still loading
 
-  }, [session, status])
+    if (!session) return // Will show auth form
+
+    // Admin users can access booking directly
+    if (session.user.role === 'admin') return
+
+    // For regular users, check if profile is complete
+    checkProfileCompletion()
+  }, [session, status, router])
+
+  const checkProfileCompletion = async () => {
+    setIsCheckingProfile(true)
+    try {
+      const response = await fetch('/api/complete-profile')
+      if (response.ok) {
+        const data = await response.json()
+        if (!data.isProfileComplete) {
+          // Profile not complete, redirect to complete profile
+          router.push('/complete-profile')
+          return
+        }
+      } else {
+        // If API fails, redirect to complete profile to be safe
+        router.push('/complete-profile')
+        return
+      }
+    } catch (error) {
+      console.error('Error checking profile completion:', error)
+      // On error, redirect to complete profile to be safe
+      router.push('/complete-profile')
+      return
+    } finally {
+      setIsCheckingProfile(false)
+    }
+  }
 
   const services = [
     {
@@ -99,12 +136,15 @@ export default function BookingPage() {
     }
   }
 
-  if (status === 'loading') {
+  // Loading states
+  if (status === 'loading' || (session && session.user.role !== 'admin' && isCheckingProfile)) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gold mx-auto mb-4"></div>
-          <p className="text-deepBlue">Loading session...</p>
+          <p className="text-deepBlue">
+            {status === 'loading' ? 'Loading session...' : 'Checking profile...'}
+          </p>
           <p className="text-sm text-gray-500 mt-2">Status: {status}</p>
         </div>
       </div>
