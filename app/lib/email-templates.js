@@ -14,7 +14,7 @@ const TEMPLATE_IDS = {
 // Email template functions
 export const emailTemplates = {
   // 1. Magic Link Authentication Email
-  async sendMagicLink({ email, url, name = 'User' }) {
+  async sendMagicLink({ email, url, firstName }) {
     const msg = {
       to: email,
       from: {
@@ -23,7 +23,7 @@ export const emailTemplates = {
       },
       templateId: TEMPLATE_IDS.MAGIC_LINK,
       dynamicTemplateData: {
-        name,
+        firstName: firstName || 'User',
         email,
         url,
         unsubscribe: `${process.env.NEXTAUTH_URL}/unsubscribe?email=${encodeURIComponent(email)}`
