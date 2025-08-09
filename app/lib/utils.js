@@ -14,9 +14,8 @@ export function formatDate(date, options = {}) {
   if (isNaN(dateObj.getTime())) return 'Invalid Date'
   
   const defaultOptions = {
-    weekday: 'long',
     year: 'numeric',
-    month: 'long',
+    month: 'short',
     day: 'numeric'
   }
   
@@ -72,6 +71,43 @@ export function getStatusColor(status) {
   }
   
   return statusColors[status] || 'bg-gray-100 text-gray-800'
+}
+
+/**
+ * Get CSS classes for user role badges
+ * @param {string} role - The user role
+ * @returns {string} CSS classes for styling
+ */
+export function getRoleColor(role) {
+  const roleColors = {
+    admin: 'bg-red-100 text-red-800',
+    user: 'bg-blue-100 text-blue-800',
+    moderator: 'bg-purple-100 text-purple-800'
+  }
+  
+  return roleColors[role] || 'bg-gray-100 text-gray-800'
+}
+
+/**
+ * Get initials from a name or email
+ * @param {string} name - The name or email to get initials from
+ * @returns {string} Initials (max 2 characters)
+ */
+export function getInitials(name) {
+  if (!name) return 'U'
+  
+  // If it's an email, use the part before @
+  if (name.includes('@')) {
+    name = name.split('@')[0]
+  }
+  
+  const words = name.trim().split(/\s+/)
+  
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase()
+  }
+  
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase()
 }
 
 /**

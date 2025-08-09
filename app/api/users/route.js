@@ -1,21 +1,32 @@
-//app/api/users/route.js
+// app/api/users/route.js
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { MongoClient, ObjectId } from 'mongodb'
-import { authOptions } from '../auth/[...nextauth]/route'
+
+// Import authOptions - adjust this path to match your NextAuth configuration
+let authOptions
+try {
+  authOptions = require('../auth/[...nextauth]/route').authOptions
+} catch (error) {
+  console.log('Could not import authOptions, using basic session check')
+}
 
 const client = new MongoClient(process.env.MONGODB_URI)
 
 export async function GET(request) {
   try {
-    const session = await getServerSession(authOptions)
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page')) || 1
-    const limit = parseInt(searchParams.get('limit')) || 20
+    const limit = parseInt(searchParams.get('limit')) || 50
     const search = searchParams.get('search') || ''
     const role = searchParams.get('role') || ''
 
@@ -32,7 +43,7 @@ export async function GET(request) {
         { phone: { $regex: search, $options: 'i' } }
       ]
     }
-    if (role) {
+    if (role && role !== 'all') {
       query.role = role
     }
 
@@ -47,59 +58,71 @@ export async function GET(request) {
       .limit(limit)
       .toArray()
 
-    // Get user stats including profile completion
-    const stats = await db.collection('users').aggregate([
-      {
-        $group: {
-          _id: '$role',
-          count: { $sum: 1 }
+    // Get user stats
+    const [roleStats, profileStats] = await Promise.all([
+      // Role statistics
+      db.collection('users').aggregate([
+        {
+          $group: {
+            _id: '$role',
+            count: { $sum: 1 }
+          }
         }
-      }
-    ]).toArray()
-
-    // Get profile completion stats
-    const profileStats = await db.collection('users').aggregate([
-      {
-        $match: { role: { $ne: 'admin' } }
-      },
-      {
-        $group: {
-          _id: {
-            $cond: {
-              if: {
-                $and: [
-                  { $ne: ['$firstName', null] },
-                  { $ne: ['$lastName', null] },
-                  { $ne: ['$phone', null] },
-                  { $ne: ['$firstName', ''] },
-                  { $ne: ['$lastName', ''] },
-                  { $ne: ['$phone', ''] }
-                ]
-              },
-              then: 'complete',
-              else: 'incomplete'
-            }
-          },
-          count: { $sum: 1 }
+      ]).toArray(),
+      
+      // Profile completion statistics
+      db.collection('users').aggregate([
+        {
+          $match: { 
+            $or: [
+              { role: { $ne: 'admin' } },
+              { role: { $exists: false } }
+            ]
+          }
+        },
+        {
+          $group: {
+            _id: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $ne: ['$firstName', null] },
+                    { $ne: ['$lastName', null] },
+                    { $ne: ['$phone', null] },
+                    { $ne: ['$firstName', ''] },
+                    { $ne: ['$lastName', ''] },
+                    { $ne: ['$phone', ''] }
+                  ]
+                },
+                then: 'complete',
+                else: 'incomplete'
+              }
+            },
+            count: { $sum: 1 }
+          }
         }
-      }
-    ]).toArray()
+      ]).toArray()
+    ])
 
     // Format stats
     const userStats = {
       total: totalUsers,
-      admin: stats.find(s => s._id === 'admin')?.count || 0,
-      user: stats.find(s => s._id === 'user')?.count || 0,
+      admin: roleStats.find(s => s._id === 'admin')?.count || 0,
+      user: roleStats.find(s => s._id === 'user')?.count || roleStats.find(s => s._id === null)?.count || 0,
       profileComplete: profileStats.find(s => s._id === 'complete')?.count || 0,
       profileIncomplete: profileStats.find(s => s._id === 'incomplete')?.count || 0
     }
 
+    // Add calculated fields to users
+    const usersWithCalculatedFields = users.map(user => ({
+      ...user,
+      _id: user._id.toString(),
+      isProfileComplete: !!(user.firstName && user.lastName && user.phone),
+      role: user.role || 'user' // Default role if not set
+    }))
+
     return NextResponse.json({
-      users: users.map(user => ({
-        ...user,
-        _id: user._id.toString(),
-        isProfileComplete: !!(user.firstName && user.lastName && user.phone)
-      })),
+      users: usersWithCalculatedFields,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalUsers / limit),
@@ -112,7 +135,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Get users error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   } finally {
@@ -122,7 +145,10 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -157,6 +183,7 @@ export async function POST(request) {
       emailVerified: null,
       image: null,
       createdAt: new Date(),
+      updatedAt: new Date(),
       lastLogin: null
     }
 
@@ -196,7 +223,10 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -254,58 +284,6 @@ export async function PUT(request) {
 
   } catch (error) {
     console.error('Update user error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  } finally {
-    await client.close()
-  }
-}
-
-export async function DELETE(request) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
-
-    if (!userId || !ObjectId.isValid(userId)) {
-      return NextResponse.json(
-        { error: 'Valid user ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Prevent admin from deleting themselves
-    if (userId === session.user.id) {
-      return NextResponse.json(
-        { error: 'Cannot delete your own account' },
-        { status: 400 }
-      )
-    }
-
-    await client.connect()
-    const db = client.db('gilt-counselling')
-    
-    // Delete user and related data
-    await Promise.all([
-      db.collection('users').deleteOne({ _id: new ObjectId(userId) }),
-      db.collection('sessions').deleteMany({ userId: new ObjectId(userId) }),
-      db.collection('accounts').deleteMany({ userId: new ObjectId(userId) }),
-      db.collection('bookings').deleteMany({ userId: new ObjectId(userId) })
-    ])
-
-    return NextResponse.json({
-      success: true,
-      message: 'User and related data deleted successfully'
-    })
-
-  } catch (error) {
-    console.error('Delete user error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
