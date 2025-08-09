@@ -110,7 +110,7 @@ export class EnhancedReminderSystem {
           booking_duration: booking.duration || '60 minutes',
           booking_reference: booking.bookingReference || booking._id.toString(),
           contact_phone: '+234 803 309 4050',
-          contact_email: 'support@giltcounselling.com',
+          contact_email: 'wecare@giltcounselling.com',
           office_location: 'No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria'
         }
       }

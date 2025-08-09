@@ -69,8 +69,8 @@ export default function ContactPage() {
                   <span className="text-gold text-xl">✉️</span>
                   <div>
                     <p className="font-medium text-deepBlue">Email</p>
-                    <a href="mailto:support@giltcounselling.com" className="text-gray-600 hover:text-gold transition-colors">
-                      support@giltcounselling.com
+                    <a href="mailto:wecare@giltcounselling.com" className="text-gray-600 hover:text-gold transition-colors">
+                      wecare@giltcounselling.com
                     </a>
                   </div>
                 </div>

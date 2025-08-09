@@ -124,7 +124,7 @@ IMPORTANT:
 
 Contact Information:
 Phone: +234 803 309 4050
-Email: support@giltcounselling.com
+Email: wecare@giltcounselling.com
 Website: https://giltcounselling.com
 
 Important Notes:
@@ -145,7 +145,7 @@ Booking Reference: ${bookingData.bookingReference || bookingData.id || bookingDa
 
 Contact Information:
 Phone: +234 803 309 4050
-Email: support@giltcounselling.com
+Email: wecare@giltcounselling.com
 Website: https://giltcounselling.com
 
 Important Notes:
@@ -521,7 +521,7 @@ Important Notes:
                   <span>📞</span>
                   <span>+234 803 309 4050</span>
                 </a>
-                <a href="mailto:support@giltcounselling.com" className="text-gold hover:text-yellow-600 flex items-center justify-center space-x-1">
+                <a href="mailto:wecare@giltcounselling.com" className="text-gold hover:text-yellow-600 flex items-center justify-center space-x-1">
                   <span>✉️</span>
                   <span>Email Support</span>
                 </a>

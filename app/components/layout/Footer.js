@@ -31,10 +31,10 @@ export default function Footer() {
                 (+234) 803-309-4050
               </Link>
               <Link 
-                href="mailto:support@giltcounselling.com"
+                href="mailto:wecare@giltcounselling.com"
                 className="text-gold hover:text-yellow-300 transition-colors text-sm md:text-base break-all"
               >
-                support@giltcounselling.com
+                wecare@giltcounselling.com
               </Link>
             </div>
           </div>

@@ -115,7 +115,7 @@ export async function POST(request) {
             
             <p>If you have any questions or need support, don't hesitate to reach out:</p>
             <ul style="list-style: none; padding: 0;">
-              <li>📧 Email: support@giltcounselling.com</li>
+              <li>📧 Email: wecare@giltcounselling.com</li>
               <li>📞 Phone: +234 803 309 4050</li>
               <li>🌐 Website: giltcounselling.com</li>
             </ul>
@@ -275,7 +275,7 @@ export async function DELETE(request) {
               </a>
             </div>
             
-            <p>If you have any feedback about why you unsubscribed, we'd love to hear from you at support@giltcounselling.com</p>
+            <p>If you have any feedback about why you unsubscribed, we'd love to hear from you at wecare@giltcounselling.com</p>
             
             <p>Thank you for being part of our community.</p>
             

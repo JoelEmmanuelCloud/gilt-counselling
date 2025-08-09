@@ -270,7 +270,7 @@ function generateBookingReminderHTML(templateData, recipient) {
           </p>
           <p style="color: #00303F; font-weight: bold; margin-bottom: 10px;">
             📞 +234 803 309 4050<br>
-            ✉️ support@giltcounselling.com
+            ✉️ wecare@giltcounselling.com
           </p>
         </div>
       </div>

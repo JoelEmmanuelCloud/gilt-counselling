@@ -75,7 +75,7 @@ export async function POST(request) {
           bookingReference: booking.bookingReference || booking._id.toString(),
           location: 'No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria',
           contactPhone: '+234 803 309 4050',
-          contactEmail: 'support@giltcounselling.com'
+          contactEmail: 'wecare@giltcounselling.com'
         }
 
         // Send detailed confirmation email
@@ -247,7 +247,7 @@ export async function PUT(request) {
           bookingReference: booking.bookingReference || booking._id.toString(),
           location: 'No 88 Woji Road, GRA Phase 2, Port Harcourt, Rivers State, Nigeria',
           contactPhone: '+234 803 309 4050',
-          contactEmail: 'support@giltcounselling.com'
+          contactEmail: 'wecare@giltcounselling.com'
         }
 
         await emailTemplates.sendBookingConfirmation(emailData)

@@ -382,8 +382,8 @@ export default function BookingPage() {
                     <span className="text-gold">✉️</span>
                     <div>
                       <p className="font-medium text-deepBlue">Email</p>
-                      <a href="mailto:support@giltcounselling.com" className="text-sm text-gray-600 hover:text-gold">
-                        support@giltcounselling.com
+                      <a href="mailto:wecare@giltcounselling.com" className="text-sm text-gray-600 hover:text-gold">
+                        wecare@giltcounselling.com
                       </a>
                     </div>
                   </div>
@@ -488,7 +488,7 @@ export default function BookingPage() {
                   <a href="tel:+2348033094050" className="text-gold hover:text-yellow-600">
                     📞 +234 803 309 4050
                   </a>
-                  <a href="mailto:support@giltcounselling.com" className="text-gold hover:text-yellow-600">
+                  <a href="mailto:wecare@giltcounselling.com" className="text-gold hover:text-yellow-600">
                     ✉️ Email Support
                   </a>
                 </div>

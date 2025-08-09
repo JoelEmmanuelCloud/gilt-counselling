@@ -88,7 +88,7 @@ export default function BookingConfirmationPage() {
               </div>
               <div className="flex items-center justify-center space-x-2 text-blue-700">
                 <span>✉️</span>
-                <span>support@giltcounselling.com</span>
+                <span>wecare@giltcounselling.com</span>
               </div>
             </div>
             <p className="text-xs text-blue-600 mt-3">

@@ -8,7 +8,7 @@ export default function LocalBusinessSchema() {
     "description": "Professional counselling services for teens, youth, and families",
     "url": "https://giltcounselling.com",
     "telephone": "+234 803 309 4050",
-    "email": "support@giltcounselling.com",
+    "email": "wecare@giltcounselling.com",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "88 Woji Road, GRA Phase 2",

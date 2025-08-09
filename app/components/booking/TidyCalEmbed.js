@@ -200,7 +200,7 @@ export default function TidyCalEmbed({ serviceId }) {
                 Send us your preferred times and we'll confirm your appointment.
               </p>
               <a 
-                href={`mailto:support@giltcounselling.com?subject=Booking Request - ${getServiceName(serviceId)}&body=I would like to book a ${getServiceName(serviceId)}. Please let me know your available times.`}
+                href={`mailto:wecare@giltcounselling.com?subject=Booking Request - ${getServiceName(serviceId)}&body=I would like to book a ${getServiceName(serviceId)}. Please let me know your available times.`}
                 className="btn-primary w-full text-center"
               >
                 Email Us
