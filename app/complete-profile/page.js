@@ -151,7 +151,7 @@ export default function CompleteProfilePage() {
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                  placeholder="John"
+                  placeholder="First Name"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export default function CompleteProfilePage() {
                   onChange={handleInputChange}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                  placeholder="Doe"
+                  placeholder="Last Name"
                 />
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function CompleteProfilePage() {
                 onChange={handleInputChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold focus:border-transparent"
-                placeholder="+1 (555) 123-4567"
+                placeholder="07012345678"
               />
               <p className="mt-1 text-xs text-gray-500">
                 We'll use this to confirm your appointments
