@@ -4,9 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import Image from 'next/image'
 
 export default function AdminLayout({ children, pageTitle = "Admin Dashboard" }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const pathname = usePathname()
 
   const navigation = [
@@ -24,6 +26,10 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
     return pathname.startsWith(href)
   }
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Mobile sidebar backdrop */}
@@ -37,11 +43,12 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
+      <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-    
+      } ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} w-64`}>
+        
 
+        {/* Navigation */}
         <nav className="flex-1 mt-5 px-2">
           <div className="space-y-1">
             {navigation.map((item) => (
@@ -53,9 +60,10 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
                     ? 'bg-gold text-white'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-deepBlue'
                 }`}
+                title={sidebarCollapsed ? item.name : ''}
               >
-                <span className="mr-3 text-lg">{item.icon}</span>
-                {item.name}
+                <span className="text-lg">{item.icon}</span>
+                {!sidebarCollapsed && <span className="ml-3">{item.name}</span>}
               </Link>
             ))}
           </div>
@@ -64,17 +72,19 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
             <Link
               href="/"
               className="group flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
+              title={sidebarCollapsed ? 'Back to Website' : ''}
             >
-              <span className="mr-3 text-lg">🏠</span>
-              Back to Website
+              <span className="text-lg">🏠</span>
+              {!sidebarCollapsed && <span className="ml-3">Back to Website</span>}
             </Link>
             
             <button
               onClick={() => signOut()}
               className="group flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
+              title={sidebarCollapsed ? 'Sign Out' : ''}
             >
-              <span className="mr-3 text-lg">🚪</span>
-              Sign Out
+              <span className="text-lg">🚪</span>
+              {!sidebarCollapsed && <span className="ml-3">Sign Out</span>}
             </button>
           </div>
         </nav>
@@ -85,6 +95,7 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
         {/* Top header bar */}
         <div className="flex items-center justify-between h-16 px-4 lg:px-6 bg-white border-b border-gray-200">
           <div className="flex items-center space-x-4">
+            {/* Mobile menu button */}
             <button
               onClick={() => setSidebarOpen(true)}
               className="text-gray-500 focus:outline-none focus:text-gray-700 lg:hidden"
@@ -97,13 +108,28 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
               </div>
             </button>
 
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gold rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-xs">G</span>
+            {/* Desktop toggle button */}
+            <button
+              onClick={toggleSidebar}
+              className="hidden lg:block text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              <span className="sr-only">Toggle sidebar</span>
+              <div className="w-6 h-6">
+                <div className="w-6 h-0.5 bg-gray-600 mb-1"></div>
+                <div className="w-6 h-0.5 bg-gray-600 mb-1"></div>
+                <div className="w-6 h-0.5 bg-gray-600"></div>
               </div>
-              <span className="font-playfair font-semibold text-deepBlue">
-                Gilt Counselling Admin
-              </span>
+            </button>
+
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <Image
+                src="/images/logo.svg"
+                alt="Gilt Counselling Logo"
+                width={160}
+                height={80}
+                className="h-8 w-auto object-contain"
+                />
             </div>
           </div>
 
