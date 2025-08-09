@@ -3,11 +3,18 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 import MobileMenu from './MobileMenu'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { data: session } = useSession()
+  const pathname = usePathname()
+
+  // Hide header on admin/dashboard pages
+  if (pathname?.startsWith('/dashboard')) {
+    return null
+  }
 
   const navigation = [
     { name: 'Home', href: '/' },
