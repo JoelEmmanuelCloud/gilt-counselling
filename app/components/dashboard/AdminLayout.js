@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import Image from 'next/image'
 
 export default function AdminLayout({ children, pageTitle = "Admin Dashboard" }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -43,52 +42,51 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} w-64`}>
-        
+      {!sidebarCollapsed && (
+        <div className={`fixed inset-y-0 left-0 z-50 bg-white shadow-lg transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } w-64`}>
+          
 
-        {/* Navigation */}
-        <nav className="flex-1 mt-5 px-2">
-          <div className="space-y-1">
-            {navigation.map((item) => (
+          {/* Navigation */}
+          <nav className="flex-1 mt-5 px-2">
+            <div className="space-y-1">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isActive(item.href)
+                      ? 'bg-gold text-white'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-deepBlue'
+                  }`}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="ml-3">{item.name}</span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-8 pt-8 border-t border-gray-200">
               <Link
-                key={item.name}
-                href={item.href}
-                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isActive(item.href)
-                    ? 'bg-gold text-white'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-deepBlue'
-                }`}
-                title={sidebarCollapsed ? item.name : ''}
+                href="/"
+                className="group flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
               >
-                <span className="text-lg">{item.icon}</span>
-                {!sidebarCollapsed && <span className="ml-3">{item.name}</span>}
+                <span className="text-lg">🏠</span>
+                <span className="ml-3">Back to Website</span>
               </Link>
-            ))}
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <Link
-              href="/"
-              className="group flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
-              title={sidebarCollapsed ? 'Back to Website' : ''}
-            >
-              <span className="text-lg">🏠</span>
-              {!sidebarCollapsed && <span className="ml-3">Back to Website</span>}
-            </Link>
-            
-            <button
-              onClick={() => signOut()}
-              className="group flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
-              title={sidebarCollapsed ? 'Sign Out' : ''}
-            >
-              <span className="text-lg">🚪</span>
-              {!sidebarCollapsed && <span className="ml-3">Sign Out</span>}
-            </button>
-          </div>
-        </nav>
-      </div>
+              
+              <button
+                onClick={() => signOut()}
+                className="group flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-deepBlue"
+              >
+                <span className="text-lg">🚪</span>
+                <span className="ml-3">Sign Out</span>
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -120,17 +118,6 @@ export default function AdminLayout({ children, pageTitle = "Admin Dashboard" })
                 <div className="w-6 h-0.5 bg-gray-600"></div>
               </div>
             </button>
-
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/images/logo.svg"
-                alt="Gilt Counselling Logo"
-                width={160}
-                height={80}
-                className="h-8 w-auto object-contain"
-                />
-            </div>
           </div>
 
           <div className="flex-1 text-center">
