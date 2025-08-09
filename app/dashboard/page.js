@@ -71,19 +71,12 @@ export default function DashboardPage() {
         {/* Welcome message */}
         <div>
           <p className="text-gray-600">
-            Welcome back, {session.user.email}!
+            Welcome back!
             Here's an overview of your practice activity at Gilt Counselling.
           </p>
         </div>
 
-        {/* Debug Info - Remove in production */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <h3 className="font-semibold text-yellow-800">Debug Info (Remove in production):</h3>
-          <p className="text-sm text-yellow-700">Email: {session.user.email}</p>
-          <p className="text-sm text-yellow-700">Role: {session.user.role}</p>
-          <p className="text-sm text-yellow-700">User ID: {session.user.id}</p>
-          <p className="text-sm text-yellow-700">Session Status: {status}</p>
-        </div>
+      
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
