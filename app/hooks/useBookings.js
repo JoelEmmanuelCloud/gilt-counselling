@@ -1,5 +1,4 @@
-//hooks/useBookings.js
-'use client'
+// hooks/useBookings.js
 import { useState, useEffect } from 'react'
 
 export function useBookings() {
@@ -14,40 +13,22 @@ export function useBookings() {
   const fetchBookings = async () => {
     try {
       setLoading(true)
+      setError(null)
+      
       const response = await fetch('/api/bookings')
       
       if (!response.ok) {
-        throw new Error('Failed to fetch bookings')
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
       
       const data = await response.json()
       setBookings(data.bookings || [])
-    } catch (err) {
-      setError(err.message)
+    } catch (error) {
+      console.error('Error fetching bookings:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const createBooking = async (bookingData) => {
-    try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingData),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create booking')
-      }
-
-      const result = await response.json()
-      await fetchBookings() // Refresh the list
-      return result
-    } catch (err) {
-      throw new Error(err.message)
     }
   }
 
@@ -55,70 +36,93 @@ export function useBookings() {
     try {
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
       })
-
+      
       if (!response.ok) {
-        throw new Error('Failed to update booking status')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to update booking status')
       }
-
-      // Update local state
+      
+      // Update the booking in local state
       setBookings(bookings.map(booking => 
         booking._id === bookingId 
-          ? { ...booking, status }
+          ? { ...booking, status, updatedAt: new Date().toISOString() }
           : booking
       ))
-    } catch (err) {
-      throw new Error(err.message)
+      
+      return true
+    } catch (error) {
+      console.error('Error updating booking status:', error)
+      throw error
     }
   }
 
   const deleteBooking = async (bookingId) => {
     try {
       const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: 'DELETE',
+        method: 'DELETE'
       })
-
+      
       if (!response.ok) {
-        throw new Error('Failed to delete booking')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete booking')
       }
-
-      // Update local state
+      
+      // Remove booking from local state
       setBookings(bookings.filter(booking => booking._id !== bookingId))
-    } catch (err) {
-      throw new Error(err.message)
+      
+      return true
+    } catch (error) {
+      console.error('Error deleting booking:', error)
+      throw error
     }
   }
 
-  const getBookingsByStatus = (status) => {
-    return bookings.filter(booking => booking.status === status)
-  }
-
-  const getBookingsByUser = (userId) => {
-    return bookings.filter(booking => booking.userId === userId)
-  }
-
-  const getUpcomingBookings = () => {
-    const today = new Date()
-    return bookings.filter(booking => {
-      const bookingDate = new Date(booking.date)
-      return bookingDate >= today && booking.status !== 'cancelled'
-    }).sort((a, b) => new Date(a.date) - new Date(b.date))
+  const confirmBooking = async (bookingId, sendEmail = true) => {
+    try {
+      const response = await fetch('/api/bookings/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, sendEmail })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to confirm booking')
+      }
+      
+      const result = await response.json()
+      
+      // Update the booking in local state if it was successfully confirmed
+      if (result.success) {
+        setBookings(bookings.map(booking => 
+          booking._id === bookingId 
+            ? { 
+                ...booking, 
+                confirmationEmailSent: result.emailSent,
+                lastConfirmationAttempt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+            : booking
+        ))
+      }
+      
+      return result
+    } catch (error) {
+      console.error('Error confirming booking:', error)
+      throw error
+    }
   }
 
   return {
     bookings,
     loading,
     error,
-    createBooking,
     updateBookingStatus,
     deleteBooking,
-    getBookingsByStatus,
-    getBookingsByUser,
-    getUpcomingBookings,
+    confirmBooking,
     refetch: fetchBookings
   }
 }

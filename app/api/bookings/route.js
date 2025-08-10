@@ -1,8 +1,16 @@
-// app/api/bookings/route.js 
+// app/api/bookings/route.js
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import { MongoClient } from 'mongodb'
 import { emailTemplates } from '@/lib/email-templates'
+
+// Import authOptions - adjust this path to match your NextAuth configuration
+let authOptions
+try {
+  authOptions = require('../auth/[...nextauth]/route').authOptions
+} catch (error) {
+  console.log('Could not import authOptions, using basic session check')
+}
 
 const client = new MongoClient(process.env.MONGODB_URI)
 
@@ -17,7 +25,10 @@ const SERVICE_DETAILS = {
 // GET - Fetch bookings
 export async function GET(request) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -64,8 +75,14 @@ export async function GET(request) {
     const hasNextPage = page < totalPages
     const hasPreviousPage = page > 1
 
+    // Convert ObjectIds to strings for JSON serialization
+    const bookingsWithStringIds = bookings.map(booking => ({
+      ...booking,
+      _id: booking._id.toString()
+    }))
+
     return NextResponse.json({
-      bookings,
+      bookings: bookingsWithStringIds,
       pagination: {
         currentPage: page,
         totalPages,
@@ -79,7 +96,7 @@ export async function GET(request) {
   } catch (error) {
     console.error('Get bookings error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   } finally {
@@ -90,7 +107,11 @@ export async function GET(request) {
 // POST - Create new booking
 export async function POST(request) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -182,12 +203,12 @@ export async function POST(request) {
     return NextResponse.json(
       { 
         success: true, 
-        bookingId: result.insertedId,
+        bookingId: result.insertedId.toString(),
         bookingReference,
         booking: { 
           ...booking, 
-          _id: result.insertedId,
-          id: result.insertedId // For compatibility
+          _id: result.insertedId.toString(),
+          id: result.insertedId.toString() // For compatibility
         }
       },
       { status: 201 }
@@ -196,7 +217,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Booking creation error:', error)
     return NextResponse.json(
-      { error: 'Internal server error. Please try again.' },
+      { error: 'Internal server error. Please try again.', details: error.message },
       { status: 500 }
     )
   } finally {

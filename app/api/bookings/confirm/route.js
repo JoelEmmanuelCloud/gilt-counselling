@@ -4,11 +4,22 @@ import { getServerSession } from 'next-auth/next'
 import { MongoClient, ObjectId } from 'mongodb'
 import { emailTemplates } from '@/lib/email-templates'
 
+// Import authOptions - adjust this path to match your NextAuth configuration
+let authOptions
+try {
+  authOptions = require('../../auth/[...nextauth]/route').authOptions
+} catch (error) {
+  console.log('Could not import authOptions, using basic session check')
+}
+
 const client = new MongoClient(process.env.MONGODB_URI)
 
 export async function POST(request) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -82,7 +93,6 @@ export async function POST(request) {
         await emailTemplates.sendBookingConfirmation(emailData)
         
         emailSent = true
-     
         
       } catch (emailSendError) {
         console.error('Failed to send confirmation email:', emailSendError)
@@ -110,7 +120,7 @@ export async function POST(request) {
       emailSent,
       emailError,
       booking: {
-        id: booking._id,
+        id: booking._id.toString(),
         service: booking.service,
         date: booking.date,
         time: booking.time,
@@ -138,7 +148,7 @@ export async function POST(request) {
     }
     
     return NextResponse.json(
-      { error: 'Internal server error. Your booking is saved, but confirmation email may be delayed.' },
+      { error: 'Internal server error. Your booking is saved, but confirmation email may be delayed.', details: error.message },
       { status: 500 }
     )
   } finally {
@@ -150,58 +160,13 @@ export async function POST(request) {
   }
 }
 
-// Helper function to get service duration
-function getServiceDuration(service) {
-  const durations = {
-    'Individual Teen Session': '50 minutes',
-    'Family Therapy': '75 minutes',
-    'Parent Coaching': '60 minutes',
-    'Teen Group Session': '90 minutes',
-    'Group Session': '90 minutes'
-  }
-  return durations[service] || '60 minutes'
-}
-
-// Helper function to get user-friendly email error messages
-function getEmailErrorMessage(error) {
-  if (error.message?.includes('ENOTFOUND')) {
-    return 'Email service temporarily unavailable. We\'ll send your confirmation shortly.'
-  }
-  
-  if (error.message?.includes('timeout')) {
-    return 'Email delivery is slow but will arrive shortly.'
-  }
-  
-  if (error.message?.includes('Invalid email')) {
-    return 'There was an issue with the email address. Please contact us to update it.'
-  }
-  
-  if (error.code === 'ECONNREFUSED') {
-    return 'Email service is temporarily down. Your booking is confirmed, but please save these details.'
-  }
-  
-  return 'Email delivery is experiencing delays but your booking is confirmed.'
-}
-
-// Helper function to log email failures for debugging
-async function logEmailFailure(db, bookingId, error) {
-  try {
-    await db.collection('email_failures').insertOne({
-      bookingId,
-      error: error.message,
-      errorCode: error.code,
-      timestamp: new Date(),
-      resolved: false
-    })
-  } catch (logError) {
-    console.error('Failed to log email failure:', logError)
-  }
-}
-
 // Alternative endpoint for manual confirmation retry
 export async function PUT(request) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
     
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
@@ -285,7 +250,7 @@ export async function PUT(request) {
     return NextResponse.json({
       success: true,
       booking: {
-        id: booking._id,
+        id: booking._id.toString(),
         confirmationEmailSent: booking.confirmationEmailSent || false,
         lastConfirmationAttempt: booking.lastConfirmationAttempt
       }
@@ -294,7 +259,7 @@ export async function PUT(request) {
   } catch (error) {
     console.error('Admin confirmation retry error:', error)
     return NextResponse.json(
-      { error: 'Internal server error during admin retry' },
+      { error: 'Internal server error during admin retry', details: error.message },
       { status: 500 }
     )
   } finally {
@@ -303,5 +268,53 @@ export async function PUT(request) {
     } catch (closeError) {
       console.error('Error closing database connection:', closeError)
     }
+  }
+}
+
+// Helper function to get service duration
+function getServiceDuration(service) {
+  const durations = {
+    'Individual Teen Session': '50 minutes',
+    'Family Therapy': '75 minutes',
+    'Parent Coaching': '60 minutes',
+    'Teen Group Session': '90 minutes',
+    'Group Session': '90 minutes'
+  }
+  return durations[service] || '60 minutes'
+}
+
+// Helper function to get user-friendly email error messages
+function getEmailErrorMessage(error) {
+  if (error.message?.includes('ENOTFOUND')) {
+    return 'Email service temporarily unavailable. We\'ll send your confirmation shortly.'
+  }
+  
+  if (error.message?.includes('timeout')) {
+    return 'Email delivery is slow but will arrive shortly.'
+  }
+  
+  if (error.message?.includes('Invalid email')) {
+    return 'There was an issue with the email address. Please contact us to update it.'
+  }
+  
+  if (error.code === 'ECONNREFUSED') {
+    return 'Email service is temporarily down. Your booking is confirmed, but please save these details.'
+  }
+  
+  return 'Email delivery is experiencing delays but your booking is confirmed.'
+}
+
+// Helper function to log email failures for debugging
+async function logEmailFailure(db, bookingId, error) {
+  try {
+    await db.collection('email_failures').insertOne({
+      bookingId,
+      error: error.message,
+      errorCode: error.code,
+      timestamp: new Date(),
+      resolved: false
+    })
+  } catch (logError) {
+    console.error('Failed to log email failure:', logError)
   }
 }

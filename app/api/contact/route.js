@@ -1,65 +1,108 @@
 // app/api/contact/route.js
 import { NextResponse } from 'next/server'
-import { MongoClient } from 'mongodb'
+import clientPromise from '@/lib/mongodb'
 import { emailTemplates } from '@/lib/email-templates'
-
-const client = new MongoClient(process.env.MONGODB_URI)
 
 export async function POST(request) {
   try {
     const body = await request.json()
-    const { name, email, phone, subject, message, urgency = 'normal' } = body
+    const { name, email, phone, subject, message, urgency } = body
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
-        { error: 'Name, email, subject, and message are required' },
+        { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    const contactData = {
-      name,
-      email,
-      phone,
-      subject,
-      message,
-      urgency,
-      read: false,
-      createdAt: new Date()
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
     }
 
-    await client.connect()
+    // Connect to MongoDB
+    const client = await clientPromise
     const db = client.db('gilt-counselling')
-    
-    // Save to database
-    const result = await db.collection('messages').insertOne(contactData)
 
-    // Send confirmation email to user
-    await emailTemplates.sendContactResponse({
-      email,
-      contactName: name,
-      subject,
-      priorityLevel: urgency,
-      phone,
-      isUrgent: urgency === 'urgent' || urgency === 'emergency'
+    // Create message object
+    const messageData = {
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone ? phone.trim() : null,
+      subject: subject.trim(),
+      message: message.trim(),
+      urgency: urgency || 'normal',
+      read: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    // Insert message into database
+    const result = await db.collection('messages').insertOne(messageData)
+
+    if (!result.insertedId) {
+      throw new Error('Failed to save message')
+    }
+
+    // Send confirmation email to user (non-blocking)
+    try {
+      await emailTemplates.sendContactResponse({
+        email: messageData.email,
+        contactName: messageData.name,
+        subject: messageData.subject,
+        priorityLevel: messageData.urgency,
+        phone: messageData.phone,
+        isUrgent: messageData.urgency === 'urgent' || messageData.urgency === 'emergency'
+      })
+    } catch (emailError) {
+      console.error('Failed to send confirmation email:', emailError)
+      // Don't fail the entire request if email fails
+    }
+
+    // Send admin notification email (non-blocking)
+    try {
+      await emailTemplates.sendAdminNotification({
+        type: 'new_contact',
+        data: messageData
+      })
+    } catch (emailError) {
+      console.error('Failed to send admin notification:', emailError)
+      // Don't fail the entire request if email fails
+    }
+
+    // Log for debugging (remove in production)
+    console.log('New message received:', {
+      id: result.insertedId,
+      name: messageData.name,
+      email: messageData.email,
+      urgency: messageData.urgency
     })
 
-    // Send notification to admin
-    await emailTemplates.sendAdminNotification('new_contact', contactData)
-
-    return NextResponse.json({ 
-      success: true, 
-      messageId: result.insertedId 
-    })
+    // Return success response
+    return NextResponse.json(
+      { 
+        success: true, 
+        messageId: result.insertedId,
+        message: 'Message sent successfully'
+      },
+      { status: 201 }
+    )
 
   } catch (error) {
-    console.error('Contact form error:', error)
+    console.error('Contact form submission error:', error)
+    
+    // Return appropriate error response
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Failed to send message. Please try again or contact us directly.',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     )
-  } finally {
-    await client.close()
   }
 }
