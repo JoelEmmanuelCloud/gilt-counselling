@@ -1,13 +1,24 @@
-//app/api/messages/[id]/route.js
+// app/api/messages/[id]/route.js
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
-import { MongoClient, ObjectId } from 'mongodb'
+import { ObjectId } from 'mongodb'
+import clientPromise from '@/lib/mongodb'
 
-const client = new MongoClient(process.env.MONGODB_URI)
+// Import authOptions - adjust this path to match your NextAuth configuration
+let authOptions
+try {
+  authOptions = require('../../auth/[...nextauth]/route').authOptions
+} catch (error) {
+  console.log('Could not import authOptions, using basic session check')
+}
 
 export async function PATCH(request, { params }) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -15,12 +26,22 @@ export async function PATCH(request, { params }) {
     const body = await request.json()
     const { read } = body
 
-    await client.connect()
+    // Validate ObjectId
+    if (!ObjectId.isValid(params.id)) {
+      return NextResponse.json({ error: 'Invalid message ID' }, { status: 400 })
+    }
+
+    const client = await clientPromise
     const db = client.db('gilt-counselling')
-    
+            
     const result = await db.collection('messages').updateOne(
       { _id: new ObjectId(params.id) },
-      { $set: { read } }
+      {
+        $set: {
+          read,
+          updatedAt: new Date()
+        }
+      }
     )
 
     if (result.matchedCount === 0) {
@@ -28,28 +49,34 @@ export async function PATCH(request, { params }) {
     }
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     console.error('Update message error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
-  } finally {
-    await client.close()
   }
 }
 
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession()
+    // Get session with or without authOptions
+    const session = authOptions 
+      ? await getServerSession(authOptions)
+      : await getServerSession()
+    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await client.connect()
+    // Validate ObjectId
+    if (!ObjectId.isValid(params.id)) {
+      return NextResponse.json({ error: 'Invalid message ID' }, { status: 400 })
+    }
+
+    const client = await clientPromise
     const db = client.db('gilt-counselling')
-    
+            
     const result = await db.collection('messages').deleteOne({
       _id: new ObjectId(params.id)
     })
@@ -59,14 +86,11 @@ export async function DELETE(request, { params }) {
     }
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     console.error('Delete message error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
-  } finally {
-    await client.close()
   }
 }
