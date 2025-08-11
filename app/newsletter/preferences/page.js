@@ -1,9 +1,10 @@
 //app/newsletter/preferences/page.js
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function NewsletterPreferencesPage() {
+// Component that uses useSearchParams - wrapped in Suspense
+function NewsletterPreferencesContent() {
   const [preferences, setPreferences] = useState({
     weekly_newsletter: true,
     blog_updates: true,
@@ -79,5 +80,28 @@ export default function NewsletterPreferencesPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading component
+function PreferencesLoading() {
+  return (
+    <div className="min-h-screen bg-cream py-12">
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading preferences...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main component with Suspense wrapper
+export default function NewsletterPreferencesPage() {
+  return (
+    <Suspense fallback={<PreferencesLoading />}>
+      <NewsletterPreferencesContent />
+    </Suspense>
   )
 }

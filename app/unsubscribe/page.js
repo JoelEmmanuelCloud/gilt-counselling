@@ -1,9 +1,10 @@
 //app/unsubscribe/page.js
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function UnsubscribePage() {
+// Component that uses useSearchParams - wrapped in Suspense
+function UnsubscribeContent() {
   const [status, setStatus] = useState('loading')
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
@@ -60,7 +61,7 @@ export default function UnsubscribePage() {
               Successfully Unsubscribed
             </h1>
             <p className="text-gray-600 mb-6">
-              You have been removed from our newsletter list. We're sorry to see you go!
+              You have been removed from our newsletter list. We&apos;re sorry to see you go!
             </p>
           </>
         )}
@@ -77,5 +78,26 @@ export default function UnsubscribePage() {
         )}
       </div>
     </div>
+  )
+}
+
+// Loading component
+function UnsubscribeLoading() {
+  return (
+    <div className="min-h-screen bg-cream flex items-center justify-center">
+      <div className="max-w-md w-full bg-white rounded-xl shadow-sm p-8 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+// Main component with Suspense wrapper
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={<UnsubscribeLoading />}>
+      <UnsubscribeContent />
+    </Suspense>
   )
 }
