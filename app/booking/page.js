@@ -27,7 +27,7 @@ export default function BookingPage() {
 
     // For regular users, check if profile is complete
     checkProfileCompletion()
-  }, [session, status, router, checkProfileCompletion])
+  }, [session, status, router])
 
   const checkProfileCompletion = async () => {
     setIsCheckingProfile(true)
