@@ -52,7 +52,7 @@ export default function AboutPage() {
                 Dr. Ugwu is a licensed professional counsellor specializing in adolescent and family therapy. 
                 With a deep commitment to creating safe, nurturing environments for healing and growth, 
                 she has dedicated her career to supporting teens, young adults, and their families through 
-                life's most challenging transitions.
+                life&apos; most challenging transitions.
               </p>
               
               <p>
@@ -220,13 +220,13 @@ export default function AboutPage() {
                 
                 <p className="leading-relaxed mb-6">
                   I understand that reaching out for help can feel overwhelming, especially for teenagers 
-                  who may be experiencing these feelings for the first time. That's why I've made it my 
+                  who may be experiencing these feelings for the first time. That&apos;s why I&apos;ve made it my 
                   mission to create an environment where authenticity is welcomed, growth is celebrated, 
                   and every individual feels valued for who they are.
                 </p>
 
                 <p className="leading-relaxed">
-                  When I'm not in session with clients, you can find me reading the latest research in 
+                  When I&apos;m not in session with clients, you can find me reading the latest research in 
                   adolescent psychology, spending time with my own family, or advocating for mental 
                   health awareness in our community. I believe that staying connected to both the 
                   scientific advances in our field and the human experiences that unite us all makes 
