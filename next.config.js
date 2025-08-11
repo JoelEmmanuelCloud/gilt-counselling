@@ -5,6 +5,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // Disable static optimization for pages with useSearchParams
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
+  
   // Your existing image configuration
   images: {
     domains: ['cdn.sanity.io'],
