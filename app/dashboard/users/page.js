@@ -28,7 +28,6 @@ export default function UsersPage() {
       }
       
       const data = await response.json()
-      console.log('Fetched data:', data)
       
       setUsers(data.users || [])
       setStats(data.stats || {})

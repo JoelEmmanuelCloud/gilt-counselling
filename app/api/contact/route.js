@@ -78,15 +78,7 @@ export async function POST(request) {
       // Don't fail the entire request if email fails
     }
 
-    // Log for debugging
-    console.log('📨 New message received:', {
-      id: result.insertedId,
-      name: messageData.name,
-      email: messageData.email,
-      urgency: messageData.urgency,
-      subject: messageData.subject.substring(0, 50) + '...'
-    })
-
+  
     // Return success response
     return NextResponse.json(
       { 

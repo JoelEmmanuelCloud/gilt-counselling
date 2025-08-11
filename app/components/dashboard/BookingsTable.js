@@ -43,7 +43,6 @@ export default function BookingsTable() {
       
       if (response.ok) {
         const result = await response.json()
-        console.log('Sync result:', result)
         // Refresh bookings after sync
         await fetchBookings()
       }

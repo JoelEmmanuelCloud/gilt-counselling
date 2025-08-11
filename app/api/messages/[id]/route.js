@@ -9,7 +9,6 @@ let authOptions
 try {
   authOptions = require('../../auth/[...nextauth]/route').authOptions
 } catch (error) {
-  console.log('Could not import authOptions, using basic session check')
 }
 
 export async function PATCH(request, { params }) {

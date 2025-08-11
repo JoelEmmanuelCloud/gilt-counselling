@@ -9,15 +9,14 @@ export class TidyCalIntegration {
       await client.connect()
       const db = client.db('gilt-counselling')
       
-      console.log('Starting TidyCal sync...')
+
       
       // Fetch bookings from TidyCal API
       const tidyCalBookings = await this.fetchTidyCalBookings()
-      console.log(`Fetched ${tidyCalBookings.length} bookings from TidyCal`)
+  
       
       // Sync with MongoDB
       const syncResults = await this.syncBookingsToMongoDB(db, tidyCalBookings)
-      console.log('Sync completed:', syncResults)
       
       return {
         success: true,
@@ -40,8 +39,6 @@ export class TidyCalIntegration {
     if (!API_KEY) {
       throw new Error('TIDYCAL_API_KEY environment variable is not set')
     }
-
-    console.log('Fetching bookings from TidyCal API...')
     
     const response = await fetch('https://tidycal.com/api/bookings', {
       headers: {
@@ -62,11 +59,6 @@ export class TidyCalIntegration {
     }
 
     const data = await response.json()
-    console.log('TidyCal API Response structure:', {
-      hasData: !!data.data,
-      dataLength: data.data?.length || 0,
-      keys: Object.keys(data)
-    })
 
     return data.data || []
   }
@@ -75,8 +67,6 @@ export class TidyCalIntegration {
     let synced = 0
     let updated = 0
     let errors = 0
-
-    console.log(`Processing ${tidyCalBookings.length} TidyCal bookings...`)
 
     for (const tidyBooking of tidyCalBookings) {
       try {
@@ -102,7 +92,6 @@ export class TidyCalIntegration {
           
           if (updateResult.modifiedCount > 0) {
             updated++
-            console.log(`Updated booking: ${tidyBooking.id}`)
           }
         } else {
           // Create new booking
@@ -114,7 +103,7 @@ export class TidyCalIntegration {
             source: 'tidycal'
           })
           synced++
-          console.log(`Created new booking: ${tidyBooking.id}`)
+
         }
       } catch (error) {
         console.error(`Error processing booking ${tidyBooking.id}:`, error)
@@ -122,7 +111,6 @@ export class TidyCalIntegration {
       }
     }
 
-    console.log(`Sync completed: ${synced} new, ${updated} updated, ${errors} errors`)
     return { synced, updated, errors }
   }
 

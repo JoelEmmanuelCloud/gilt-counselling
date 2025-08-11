@@ -8,7 +8,6 @@ let authOptions
 try {
   authOptions = require('../auth/[...nextauth]/route').authOptions
 } catch (error) {
-  console.log('Could not import authOptions, using basic session check')
 }
 
 const client = new MongoClient(process.env.MONGODB_URI)

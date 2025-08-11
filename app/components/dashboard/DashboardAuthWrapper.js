@@ -12,13 +12,11 @@ export default function DashboardAuthWrapper({ children }) {
     if (status === 'loading') return // Still loading
 
     if (!session) {
-      console.log('No session found, redirecting to signin')
       router.push('/auth/signin?callbackUrl=' + window.location.pathname)
       return
     }
 
     if (session.user.role !== 'admin') {
-      console.log('User is not admin, redirecting. Role:', session.user.role)
       router.push('/')
       return
     }
