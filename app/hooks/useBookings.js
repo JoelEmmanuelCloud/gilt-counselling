@@ -82,7 +82,7 @@ export function useBookings() {
 
   const confirmBooking = async (bookingId, sendEmail = true) => {
     try {
-      const response = await fetch('/api/bookings/confirm', {
+      const response = await fetch('/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, sendEmail })

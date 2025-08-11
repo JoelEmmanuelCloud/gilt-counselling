@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { emailTemplates } from '@/lib/email-templates'
-import { enhancedEmailTemplates } from '@/lib/enhanced-email-templates'
 
 export async function POST(request) {
   try {
@@ -51,7 +50,7 @@ export async function POST(request) {
       throw new Error('Failed to save message')
     }
 
-    // Send confirmation email to user (non-blocking)
+    // Send confirmation email to user using  template
     try {
       await emailTemplates.sendContactResponse({
         email: messageData.email,
@@ -61,25 +60,25 @@ export async function POST(request) {
         phone: messageData.phone,
         isUrgent: messageData.urgency === 'urgent' || messageData.urgency === 'emergency'
       })
-      console.log('✅ Confirmation email sent to user')
+
     } catch (emailError) {
       console.error('❌ Failed to send confirmation email:', emailError)
       // Don't fail the entire request if email fails
     }
 
-    // Send enhanced admin notification email (non-blocking)
+    // Send enhanced admin notification email using template
     try {
-      await enhancedEmailTemplates.sendAdminNotification({
+      await emailTemplates.sendAdminNotification({
         type: 'new_contact',
         data: messageData
       })
-      console.log('✅ Admin notification email sent')
+
     } catch (emailError) {
       console.error('❌ Failed to send admin notification:', emailError)
       // Don't fail the entire request if email fails
     }
 
-    // Log for debugging (remove in production)
+    // Log for debugging
     console.log('📨 New message received:', {
       id: result.insertedId,
       name: messageData.name,
