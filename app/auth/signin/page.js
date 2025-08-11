@@ -1,11 +1,11 @@
-//app/auth/signin/page.js
 'use client'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function SignInPage() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function SignInForm() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -28,7 +28,7 @@ export default function SignInPage() {
       if (result?.error) {
         setMessage('There was an error sending the magic link. Please try again.')
       } else {
-        setMessage('Check your email! We\'ve sent you a magic link to sign in.')
+        setMessage('Check your email! We&apos;ve sent you a magic link to sign in.')
       }
     } catch (error) {
       setMessage('Something went wrong. Please try again.')
@@ -41,7 +41,6 @@ export default function SignInPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          
           <h2 className="font-playfair text-3xl font-bold text-deepBlue mb-2">
             Welcome
           </h2>
@@ -89,7 +88,7 @@ export default function SignInPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
-              We'll send you a secure link to access your account.<br />
+              We&apos;ll send you a secure link to access your account.<br />
               No password required!
             </p>
           </div>
@@ -105,5 +104,28 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading component
+function SignInLoading() {
+  return (
+    <div className="min-h-screen bg-cream flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gold mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main page component with Suspense wrapper
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<SignInLoading />}>
+      <SignInForm />
+    </Suspense>
   )
 }
