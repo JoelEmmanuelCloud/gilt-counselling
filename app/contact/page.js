@@ -104,45 +104,12 @@ export default function ContactPage() {
               </h3>
               <p className="text-red-700 mb-4">
                 If you or someone you know is experiencing a mental health emergency, 
-                please contact emergency services immediately.
+                please contact emergency services immediately and take the to the hospital.
               </p>
-              <div className="space-y-2 text-sm">
-                <p><strong>Emergency:</strong> 911</p>
-                <p><strong>Crisis Text Line:</strong> Text HOME to 741741</p>
-                <p><strong>National Suicide Prevention Lifeline:</strong> 988</p>
-              </div>
-            </div>
-
-            {/* FAQ Link */}
-            <div className="text-center">
-              <p className="text-gray-600 mb-4">
-                Looking for answers to common questions?
-              </p>
-              <button className="btn-secondary">
-                View FAQ
-              </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Map Section (Placeholder) */}
-      <section className="bg-gray-100">
-        <div className="container-max section-padding">
-          <h2 className="font-playfair text-3xl font-bold text-deepBlue text-center mb-8">
-            Find Our Office
-          </h2>
-          <div className="bg-white rounded-xl shadow-sm p-4 max-w-4xl mx-auto">
-            <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-4xl mb-2 block">🗺️</span>
-                <p className="text-gray-600">Interactive map would be embedded here</p>
-                <p className="text-sm text-gray-500">Google Maps integration</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }

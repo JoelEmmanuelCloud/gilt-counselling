@@ -1,284 +1,227 @@
 // hooks/useMessages.js
-'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 
 export function useMessages() {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [retryCount, setRetryCount] = useState(0)
-
-  const fetchMessages = useCallback(async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch('/api/messages', {
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      })
-      
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Unauthorized access')
-        }
-        throw new Error(`Failed to fetch messages: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      setMessages(data.messages || [])
-      setRetryCount(0) // Reset retry count on success
-    } catch (err) {
-      console.error('Error fetching messages:', err)
-      setError(err.message)
-      
-      // Auto-retry logic for temporary failures
-      if (retryCount < 3 && !err.message.includes('Unauthorized')) {
-        setTimeout(() => {
-          setRetryCount(prev => prev + 1)
-          fetchMessages()
-        }, 2000 * (retryCount + 1)) // Exponential backoff
-      }
-    } finally {
-      setLoading(false)
-    }
-  }, [retryCount])
 
   useEffect(() => {
     fetchMessages()
-  }, [fetchMessages])
+  }, [])
+
+  const fetchMessages = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+            
+      const response = await fetch('/api/messages')
+            
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
+            
+      const data = await response.json()
+      setMessages(data.messages || [])
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const markAsRead = async (messageId) => {
     try {
       const response = await fetch(`/api/messages/${messageId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ read: true }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ read: true })
       })
-
+            
       if (!response.ok) {
-        throw new Error('Failed to mark message as read')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to mark message as read')
       }
-
-      // Optimistic update
-      setMessages(prevMessages => 
-        prevMessages.map(message => 
-          message._id === messageId 
-            ? { ...message, read: true, updatedAt: new Date().toISOString() }
-            : message
-        )
-      )
-    } catch (err) {
-      console.error('Error marking message as read:', err)
-      throw new Error(err.message)
-    }
-  }
-
-  const markAsUnread = async (messageId) => {
-    try {
-      const response = await fetch(`/api/messages/${messageId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ read: false }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to mark message as unread')
-      }
-
-      // Optimistic update
-      setMessages(prevMessages => 
-        prevMessages.map(message => 
-          message._id === messageId 
-            ? { ...message, read: false, updatedAt: new Date().toISOString() }
-            : message
-        )
-      )
-    } catch (err) {
-      console.error('Error marking message as unread:', err)
-      throw new Error(err.message)
+            
+      // Update the message in local state
+      setMessages(messages.map(message =>
+        message._id === messageId
+          ? { ...message, read: true, updatedAt: new Date().toISOString() }
+          : message
+      ))
+            
+      return true
+    } catch (error) {
+      console.error('Error marking message as read:', error)
+      throw error
     }
   }
 
   const deleteMessage = async (messageId) => {
     try {
       const response = await fetch(`/api/messages/${messageId}`, {
-        method: 'DELETE',
+        method: 'DELETE'
       })
-
+            
       if (!response.ok) {
-        throw new Error('Failed to delete message')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete message')
       }
-
-      // Optimistic update
-      setMessages(prevMessages => 
-        prevMessages.filter(message => message._id !== messageId)
-      )
-    } catch (err) {
-      console.error('Error deleting message:', err)
-      throw new Error(err.message)
+            
+      // Remove message from local state
+      setMessages(messages.filter(message => message._id !== messageId))
+            
+      return true
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      throw error
     }
   }
 
-  const markMultipleAsRead = async (messageIds) => {
+  const sendReply = async (messageId, replyData) => {
     try {
-      const promises = messageIds.map(id => markAsRead(id))
-      await Promise.all(promises)
-    } catch (err) {
-      console.error('Error marking multiple messages as read:', err)
-      throw new Error(err.message)
+      const response = await fetch('/api/messages/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId,
+          ...replyData
+        })
+      })
+            
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to send reply')
+      }
+            
+      const result = await response.json()
+            
+      // Update the message in local state to show it's been replied to
+      setMessages(messages.map(message =>
+        message._id === messageId
+          ? { 
+              ...message, 
+              replied: true, 
+              repliedAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            }
+          : message
+      ))
+            
+      return result
+    } catch (error) {
+      console.error('Error sending reply:', error)
+      throw error
     }
-  }
-
-  const deleteMultiple = async (messageIds) => {
-    try {
-      const promises = messageIds.map(id => deleteMessage(id))
-      await Promise.all(promises)
-    } catch (err) {
-      console.error('Error deleting multiple messages:', err)
-      throw new Error(err.message)
-    }
-  }
-
-  // Utility functions
-  const getUnreadMessages = () => {
-    return messages.filter(message => !message.read)
-  }
-
-  const getMessagesByUrgency = (urgency) => {
-    return messages.filter(message => message.urgency === urgency)
-  }
-
-  const getEmergencyMessages = () => {
-    return messages.filter(message => message.urgency === 'emergency')
-  }
-
-  const getUrgentMessages = () => {
-    return messages.filter(message => message.urgency === 'urgent')
-  }
-
-  const getRecentMessages = (days = 7) => {
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - days)
-    
-    return messages.filter(message => 
-      new Date(message.createdAt) >= cutoffDate
-    ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  }
-
-  const getTodaysMessages = () => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    
-    return messages.filter(message => {
-      const messageDate = new Date(message.createdAt)
-      return messageDate >= today && messageDate < tomorrow
-    })
   }
 
   const getMessageStats = () => {
     const total = messages.length
-    const unread = getUnreadMessages().length
-    const emergency = getEmergencyMessages().length
-    const urgent = getUrgentMessages().length
-    const today = getTodaysMessages().length
-    const thisWeek = getRecentMessages(7).length
-
+    const unread = messages.filter(m => !m.read).length
+    const urgent = messages.filter(m => m.urgency === 'urgent' || m.urgency === 'emergency').length
+    const unreplied = messages.filter(m => !m.replied).length
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    const todaysMessages = messages.filter(m => {
+      const messageDate = new Date(m.createdAt)
+      messageDate.setHours(0, 0, 0, 0)
+      return messageDate.getTime() === today.getTime()
+    }).length
+    
+    const thisWeek = messages.filter(m => {
+      const messageDate = new Date(m.createdAt)
+      const startOfWeek = new Date(today)
+      startOfWeek.setDate(today.getDate() - today.getDay())
+      return messageDate >= startOfWeek
+    }).length
+    
     return {
       total,
       unread,
-      emergency,
       urgent,
-      today,
+      unreplied,
+      today: todaysMessages,
       thisWeek,
-      read: total - unread
+      readPercentage: total > 0 ? Math.round(((total - unread) / total) * 100) : 0,
+      replyPercentage: total > 0 ? Math.round(((total - unreplied) / total) * 100) : 0
     }
   }
 
-  const searchMessages = (query) => {
-    if (!query) return messages
+  const filterMessages = (filters = {}) => {
+    let filtered = [...messages]
     
-    const searchTerm = query.toLowerCase()
-    return messages.filter(message => 
-      message.name.toLowerCase().includes(searchTerm) ||
-      message.email.toLowerCase().includes(searchTerm) ||
-      message.subject.toLowerCase().includes(searchTerm) ||
-      message.message.toLowerCase().includes(searchTerm) ||
-      (message.phone && message.phone.includes(searchTerm))
-    )
+    // Filter by read status
+    if (filters.read !== undefined) {
+      filtered = filtered.filter(message => message.read === filters.read)
+    }
+    
+    // Filter by reply status
+    if (filters.replied !== undefined) {
+      filtered = filtered.filter(message => message.replied === filters.replied)
+    }
+    
+    // Filter by urgency
+    if (filters.urgency && filters.urgency !== 'all') {
+      if (Array.isArray(filters.urgency)) {
+        filtered = filtered.filter(message => filters.urgency.includes(message.urgency))
+      } else {
+        filtered = filtered.filter(message => message.urgency === filters.urgency)
+      }
+    }
+    
+    // Filter by search term
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase()
+      filtered = filtered.filter(message =>
+        message.name.toLowerCase().includes(searchTerm) ||
+        message.email.toLowerCase().includes(searchTerm) ||
+        message.subject.toLowerCase().includes(searchTerm) ||
+        message.message.toLowerCase().includes(searchTerm) ||
+        (message.phone && message.phone.includes(searchTerm))
+      )
+    }
+    
+    return filtered
   }
 
-  const sortMessages = (sortBy = 'date', order = 'desc') => {
+  const sortMessages = (sortBy = 'newest') => {
     return [...messages].sort((a, b) => {
-      let aValue, bValue
-      
       switch (sortBy) {
-        case 'date':
-          aValue = new Date(a.createdAt)
-          bValue = new Date(b.createdAt)
-          break
-        case 'name':
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-          break
-        case 'subject':
-          aValue = a.subject.toLowerCase()
-          bValue = b.subject.toLowerCase()
-          break
-        case 'urgency':
+        case 'newest':
+          return new Date(b.createdAt) - new Date(a.createdAt)
+        case 'oldest':
+          return new Date(a.createdAt) - new Date(b.createdAt)
+        case 'unread':
+          if (a.read === b.read) return new Date(b.createdAt) - new Date(a.createdAt)
+          return a.read ? 1 : -1
+        case 'urgent':
           const urgencyOrder = { emergency: 3, urgent: 2, normal: 1 }
-          aValue = urgencyOrder[a.urgency] || 0
-          bValue = urgencyOrder[b.urgency] || 0
-          break
-        case 'read':
-          aValue = a.read ? 1 : 0
-          bValue = b.read ? 1 : 0
-          break
+          const aValue = urgencyOrder[a.urgency] || 0
+          const bValue = urgencyOrder[b.urgency] || 0
+          if (aValue === bValue) return new Date(b.createdAt) - new Date(a.createdAt)
+          return bValue - aValue
+        case 'name':
+          return a.name.localeCompare(b.name)
         default:
-          aValue = new Date(a.createdAt)
-          bValue = new Date(b.createdAt)
-      }
-      
-      if (order === 'asc') {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+          return new Date(b.createdAt) - new Date(a.createdAt)
       }
     })
   }
 
   return {
-    // Data
     messages,
     loading,
     error,
-    
-    // Actions
     markAsRead,
-    markAsUnread,
     deleteMessage,
-    markMultipleAsRead,
-    deleteMultiple,
-    refetch: fetchMessages,
-    
-    // Getters
-    getUnreadMessages,
-    getMessagesByUrgency,
-    getEmergencyMessages,
-    getUrgentMessages,
-    getRecentMessages,
-    getTodaysMessages,
+    sendReply,
     getMessageStats,
-    
-    // Utilities
-    searchMessages,
-    sortMessages
+    filterMessages,
+    sortMessages,
+    refetch: fetchMessages
   }
 }

@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { emailTemplates } from '@/lib/email-templates'
+import { enhancedEmailTemplates } from '@/lib/enhanced-email-templates'
 
 export async function POST(request) {
   try {
@@ -38,6 +39,7 @@ export async function POST(request) {
       message: message.trim(),
       urgency: urgency || 'normal',
       read: false,
+      replied: false,
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -59,34 +61,37 @@ export async function POST(request) {
         phone: messageData.phone,
         isUrgent: messageData.urgency === 'urgent' || messageData.urgency === 'emergency'
       })
+      console.log('✅ Confirmation email sent to user')
     } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError)
+      console.error('❌ Failed to send confirmation email:', emailError)
       // Don't fail the entire request if email fails
     }
 
-    // Send admin notification email (non-blocking)
+    // Send enhanced admin notification email (non-blocking)
     try {
-      await emailTemplates.sendAdminNotification({
+      await enhancedEmailTemplates.sendAdminNotification({
         type: 'new_contact',
         data: messageData
       })
+      console.log('✅ Admin notification email sent')
     } catch (emailError) {
-      console.error('Failed to send admin notification:', emailError)
+      console.error('❌ Failed to send admin notification:', emailError)
       // Don't fail the entire request if email fails
     }
 
     // Log for debugging (remove in production)
-    console.log('New message received:', {
+    console.log('📨 New message received:', {
       id: result.insertedId,
       name: messageData.name,
       email: messageData.email,
-      urgency: messageData.urgency
+      urgency: messageData.urgency,
+      subject: messageData.subject.substring(0, 50) + '...'
     })
 
     // Return success response
     return NextResponse.json(
       { 
-        success: true, 
+        success: true,
         messageId: result.insertedId,
         message: 'Message sent successfully'
       },
@@ -94,8 +99,8 @@ export async function POST(request) {
     )
 
   } catch (error) {
-    console.error('Contact form submission error:', error)
-    
+    console.error('❌ Contact form submission error:', error)
+        
     // Return appropriate error response
     return NextResponse.json(
       { 
