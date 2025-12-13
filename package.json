@@ -19,7 +19,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "autoprefixer": "^10.4.21",
     "mongodb": "^6.17.0",
-    "next": "15.4.2",
+    "next": "15.4.10",
     "next-auth": "^4.24.11",
     "next-sanity": "^9.12.3",
     "postcss": "^8.5.6",
